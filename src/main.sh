@@ -49,7 +49,8 @@ main() {
     value=$(echo "${line}" | cut -d ':' -f 2)
 
     [ "${prefix}" != "${stage}" ] && continue
-    echo "${index}. ${prefix} (${value})"
+
+    echo "${index}. ${value}"
     index=$((index + 1))
   done
 
