@@ -43,11 +43,11 @@ main() {
     echo "type: feat" >> "${convcommit_file}"
   fi
 
-  convcommit_selector "$convcommit_file" "type"
-
-  commit_type=
+  commit_type=$(convcommit_selector "$convcommit_file" "type")
   commit_scope=
   commit_message=
+
+  echo "Type: ${commit_type}"
 
   if [ -n "${commit_scope}" ]; then
     message="${commit_type}(${commit_scope}): ${commit_message}"
