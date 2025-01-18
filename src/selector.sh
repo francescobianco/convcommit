@@ -1,22 +1,22 @@
 
 
 convcommit_selector() {
-  echo "Selector" >&2
   local convcommit_file
   local stage
 
   convcommit_file="$1"
   stage="$2"
 
-  index=1
+  index=65
   while read line; do
     prefix=$(echo "${line}" | cut -d ':' -f 1)
 
     value=$(echo "${line}" | cut -d ':' -f 2)
 
     [ "${prefix}" != "${stage}" ] && continue
+    letter=$(printf "\\$(printf '%03o' ${index})")
 
-    echo "${index}. ${value}" >&2
+    echo "${letter}. ${value}" >&2
     index=$((index + 1))
   done < "${convcommit_file}"
 
