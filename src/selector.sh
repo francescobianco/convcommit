@@ -3,11 +3,14 @@
 convcommit_selector() {
   local convcommit_file
   local stage
+  local has_manual_input
+  local input
+  local key
 
   convcommit_file="$1"
   stage="$2"
 
-  index=65
+  index=64
   while read line; do
     prefix=$(echo "${line}" | cut -d ':' -f 1)
 
@@ -15,22 +18,30 @@ convcommit_selector() {
 
     [ "${prefix}" != "${stage}" ] && continue
     if [ "${value}" = "_" ]; then
-      echo "Press [space] for manual input" >&2
+      has_manual_input=true
       continue
     fi
 
+    index=$((index + 1))
     letter=$(printf "\\$(printf '%03o' ${index})")
     echo "[${letter}] ${value}" >&2
-    index=$((index + 1))
   done < "${convcommit_file}"
 
-  echo -n "Choose commit ${stage}: " >&2
-  stty -icanon -echo
-  key=$(dd bs=1 count=1 2>/dev/null)
-  stty icanon echo
-  echo "" >&2
-  echo "Hai premuto il tasto: $key" >&2
+  if [ "${index}" -gt 64 ]; then
+    echo -n "Choose commit ${stage}: " >&2
+    stty -icanon -echo
+    key=$(dd bs=1 count=1 2>/dev/null)
+    stty icanon echo
+    echo "" >&2
+    echo "Hai premuto il tasto: $key" >&2
+  elif [ -n "${has_manual_input}" ]; then
+    key=" "
+  fi
 
+  if [ "${key}" = " " ]; then
+    echo -n "Insert ${stage}: " >&2
+    read input
+  fi
 
-  echo $key
+  echo "${input}"
 }
