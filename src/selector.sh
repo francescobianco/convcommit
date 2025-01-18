@@ -34,7 +34,7 @@ convcommit_selector() {
     [ -n "${has_manual_input}" ] && echo "Press [space] for manual input" >&2
     echo -n "Choose commit ${stage}: " >&2
     stty -icanon -echo
-    key=$(dd bs=1 count=1 2>/dev/null)
+    key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
     stty icanon echo
     echo "" >&2
     index=64
