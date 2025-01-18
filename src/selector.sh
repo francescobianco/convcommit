@@ -16,7 +16,7 @@ convcommit_selector() {
     [ "${prefix}" != "${stage}" ] && continue
     letter=$(printf "\\$(printf '%03o' ${index})")
 
-    echo "${letter}. ${value}" >&2
+    echo "[${letter}] ${value}" >&2
     index=$((index + 1))
   done < "${convcommit_file}"
 
