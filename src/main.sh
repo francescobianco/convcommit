@@ -9,8 +9,6 @@ main() {
   local commit_type
   local commit_scope
   local convcommit_file
-  local index
-  local stage
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -44,8 +42,8 @@ main() {
   fi
 
   commit_type=$(convcommit_selector "$convcommit_file" "type")
-  commit_scope=
-  commit_message=
+  commit_scope=$(convcommit_selector "$convcommit_file" "scope")
+  commit_message=$(convcommit_selector "$convcommit_file" "message")
 
   echo "Type: ${commit_type}"
 
