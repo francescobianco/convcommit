@@ -1,6 +1,7 @@
 
 
 convcommit_selector() {
+  echo "Selector"
   local convcommit_file
   local stage
 
