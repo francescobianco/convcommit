@@ -41,6 +41,7 @@ convcommit_selector() {
   if [ "${key}" = " " ]; then
     echo -n "Insert ${stage}: " >&2
     read input
+    echo "${stage}:${input}" >> "${convcommit_file}"
   fi
 
   echo "${input}"
