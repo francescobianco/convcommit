@@ -38,7 +38,7 @@ main() {
   convcommit_file=".convcommit"
 
   if [ ! -f "${convcommit_file}" ]; then
-    echo "type: feat" >> "${convcommit_file}"
+    echo "type:feat" >> "${convcommit_file}"
   fi
 
   commit_type=$(convcommit_selector "$convcommit_file" "type")
