@@ -43,7 +43,7 @@ main() {
     echo "type: feat" >> "${convcommit_file}"
   fi
 
-  convcommit "$convcommit_file" "type"
+  convcommit_selector "$convcommit_file" "type"
 
   commit_type=
   commit_scope=
