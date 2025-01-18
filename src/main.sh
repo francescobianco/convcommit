@@ -41,6 +41,8 @@ main() {
     echo "type:feat" >> "${convcommit_file}"
   fi
 
+  echo "Push: $push"
+
   commit_type=$(convcommit_selector "$convcommit_file" "type")
   commit_scope=$(convcommit_selector "$convcommit_file" "scope")
   commit_message=$(convcommit_selector "$convcommit_file" "message")
