@@ -14,8 +14,12 @@ convcommit_selector() {
     value=$(echo "${line}" | cut -d ':' -f 2)
 
     [ "${prefix}" != "${stage}" ] && continue
-    letter=$(printf "\\$(printf '%03o' ${index})")
+    if [ "${value}" = "_" ]; then
+      echo "Press [space] for manual input" >&2
+      continue
+    fi
 
+    letter=$(printf "\\$(printf '%03o' ${index})")
     echo "[${letter}] ${value}" >&2
     index=$((index + 1))
   done < "${convcommit_file}"
