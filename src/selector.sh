@@ -37,7 +37,17 @@ convcommit_selector() {
     key=$(dd bs=1 count=1 2>/dev/null)
     stty icanon echo
     echo "" >&2
+    index=64
     #echo "Hai premuto il tasto: $key" >&2
+    while read line; do
+        prefix=$(echo "${line}" | cut -d ':' -f 1)
+        value=$(echo "${line}" | cut -d ':' -f 2)
+        [ "${prefix}" != "${stage}" ] && continue
+        [ "${value}" = "_" ] && continue
+        index=$((index + 1))
+        letter=$(printf "\\$(printf '%03o' ${index})")
+        [ "$key" = "$letter" ] && input="${value}"
+      done < "${convcommit_file}"
   elif [ -n "${has_manual_input}" ]; then
     key=" "
   fi
