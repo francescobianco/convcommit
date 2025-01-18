@@ -10,6 +10,9 @@ convcommit_selector() {
   convcommit_file="$1"
   stage="$2"
 
+  echo "" >&2
+  echo "=========[ SELECT ${stage} ]=========" >&2
+
   index=64
   while read line; do
     prefix=$(echo "${line}" | cut -d ':' -f 1)
@@ -28,18 +31,19 @@ convcommit_selector() {
   done < "${convcommit_file}"
 
   if [ "${index}" -gt 64 ]; then
+    [ -n "${has_manual_input}" ] && echo "Press [space] for manual input" >&2
     echo -n "Choose commit ${stage}: " >&2
     stty -icanon -echo
     key=$(dd bs=1 count=1 2>/dev/null)
     stty icanon echo
     echo "" >&2
-    echo "Hai premuto il tasto: $key" >&2
+    #echo "Hai premuto il tasto: $key" >&2
   elif [ -n "${has_manual_input}" ]; then
     key=" "
   fi
 
   if [ "${key}" = " " ]; then
-    echo -n "Insert ${stage}: " >&2
+    echo -n "Manually type a ${stage}: " >&2
     read input
     echo "${stage}:${input}" >> "${convcommit_file}"
   fi
