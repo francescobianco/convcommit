@@ -6,6 +6,8 @@ main() {
   local commit_type
   local commit_scope
   local convcommit_file
+  local index
+  local stage
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -37,6 +39,19 @@ main() {
   if [ ! -f "${convcommit_file}" ]; then
     echo "type: feat" >> "${convcommit_file}"
   fi
+
+  ##
+  index=1
+  stage=type
+  cat "${convcommit_file}" | while read line; do
+    prefix=$(echo "${line}" | cut -d ':' -f 1)
+
+    value=$(echo "${line}" | cut -d ':' -f 2)
+
+    [ "${prefix}" != "${stage}" ] && continue
+    echo "${index}. ${prefix} (${value})"
+    index=$((index + 1))
+  done
 
   commit_type=
   commit_scope=
