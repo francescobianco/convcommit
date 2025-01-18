@@ -1,7 +1,7 @@
 
 
 convcommit_selector() {
-  echo "Selector"
+  echo "Selector" >&2
   local convcommit_file
   local stage
 
@@ -16,17 +16,17 @@ convcommit_selector() {
 
     [ "${prefix}" != "${stage}" ] && continue
 
-    echo "${index}. ${value}"
+    echo "${index}. ${value}" >&2
     index=$((index + 1))
   done < "${convcommit_file}"
 
-  echo -n "Choose commit ${stage}: "
+  echo -n "Choose commit ${stage}: " >&2
   stty -icanon -echo
   key=$(dd bs=1 count=1 2>/dev/null)
   stty icanon echo
-  echo
-  echo "Hai premuto il tasto: $key"
+  echo "" >&2
+  echo "Hai premuto il tasto: $key" >&2
 
 
-
+  echo $key
 }
