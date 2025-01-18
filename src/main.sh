@@ -11,16 +11,17 @@ main() {
   local convcommit_file
 
   while [ $# -gt 0 ]; do
+    echo "- $1"
     case "$1" in
       -*)
         case "$1" in
           -a|--all)
             commit_all=true
-            shift
+
             ;;
           -p|--push)
             push=true
-            shift
+
             ;;
           *)
             echo "Unknown option: $1" >&2
