@@ -54,6 +54,15 @@ main() {
     index=$((index + 1))
   done
 
+  echo -n "Premi un tasto: "
+  # Configura il terminale per leggere un carattere senza echo
+  stty -icanon -echo
+  key=$(dd bs=1 count=1 2>/dev/null)
+  # Ripristina le impostazioni originali del terminale
+  stty icanon echo
+  echo
+  echo "Hai premuto il tasto: $key"
+
   commit_type=
   commit_scope=
   commit_message=
