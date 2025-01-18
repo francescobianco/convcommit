@@ -1,3 +1,6 @@
+
+module selector
+
 main() {
   local commit_all
   local push
@@ -40,28 +43,7 @@ main() {
     echo "type: feat" >> "${convcommit_file}"
   fi
 
-  ##
-  index=1
-  stage=type
-  cat "${convcommit_file}" | while read line; do
-    prefix=$(echo "${line}" | cut -d ':' -f 1)
-
-    value=$(echo "${line}" | cut -d ':' -f 2)
-
-    [ "${prefix}" != "${stage}" ] && continue
-
-    echo "${index}. ${value}"
-    index=$((index + 1))
-  done
-
-  echo -n "Premi un tasto: "
-  # Configura il terminale per leggere un carattere senza echo
-  stty -icanon -echo
-  key=$(dd bs=1 count=1 2>/dev/null)
-  # Ripristina le impostazioni originali del terminale
-  stty icanon echo
-  echo
-  echo "Hai premuto il tasto: $key"
+  convcommit "$convcommit_file" "type"
 
   commit_type=
   commit_scope=
