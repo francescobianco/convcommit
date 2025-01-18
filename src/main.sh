@@ -62,6 +62,7 @@ main() {
   fi
 
   if [ -n "$push" ]; then
+    git config credential.helper 'cache --timeout=3600'
     git push
   fi
 }
