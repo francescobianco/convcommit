@@ -16,11 +16,11 @@ main() {
         case "$1" in
           -a|--all)
             commit_all=true
-            shift
+
             ;;
           -p|--push)
             push=true
-            shift
+
             ;;
           *)
             echo "Unknown option: $1" >&2
@@ -77,6 +77,7 @@ main() {
   fi
 
   if [ -n "$push" ]; then
+    git config credential.helper 'cache --timeout=3600'
     git push
   fi
 }
