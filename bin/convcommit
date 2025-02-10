@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-10T17:07:08Z
+# @build_date: 2025-02-10T17:10:35Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -30,11 +30,11 @@ main() {
         case "$1" in
           -a|--all)
             commit_all=true
-            shift
+
             ;;
           -p|--push)
             push=true
-            shift
+
             ;;
           *)
             echo "Unknown option: $1" >&2
@@ -91,6 +91,7 @@ main() {
   fi
 
   if [ -n "$push" ]; then
+    git config credential.helper 'cache --timeout=3600'
     git push
   fi
 }
