@@ -52,6 +52,8 @@ convcommit_selector() {
   done < "${convcommit_file}"
 
   if [ "${index}" -gt 64 ]; then
+    input=${default_value}
+    [ "${default_value}" = "_" ] && default_value="[manual input]"
     [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
     echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
     stty -icanon -echo
@@ -60,11 +62,11 @@ convcommit_selector() {
     echo "" >&2
     #echo "Pressed key: $key" >&2
     index=64
-    input=${default_value}
     while read -r line; do
       prefix=$(echo "${line}" | cut -d ':' -f 1)
       value=$(echo "${line}" | cut -d ':' -f 2)
       [ "${prefix}" != "${stage}" ] && continue
+      [ "${value#\~}" != "$value" ] && value="${value#\~}"
       [ "${value}" = "_" ] && continue
       #[ -z "${input}" ] && input="${value}"
       index=$((index + 1))
@@ -72,10 +74,10 @@ convcommit_selector() {
       [ "${key}" = "${letter}" ] && input="${value}"
     done < "${convcommit_file}"
   elif [ -n "${has_manual_input}" ]; then
-    key=" "
+    key="."
   fi
 
-  if [ "${key}" = "." ]; then
+  if [ "${key}" = "." ] || [ "${input}" = "_" ]; then
     tput cuu1 >&2
     tput el >&2
     echo -n "Manually type a ${stage}: " >&2
