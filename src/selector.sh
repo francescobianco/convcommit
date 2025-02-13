@@ -15,7 +15,6 @@ convcommit_selector() {
   columns="${3:-1}"
   columns_width="${4:-80}"
 
-  echo "" >&2
   echo "==> Select ${stage}" >&2
 
   index=64
@@ -31,7 +30,14 @@ convcommit_selector() {
       continue
     fi
 
-    [ -z "${default_value}" ] && default_value="${value}"
+    if [ "${value#\~}" != "$value" ]; then
+      value="${value#\~}"
+      default_value="${value}"
+    fi
+
+    [ -z "${value}" ] && continue
+
+    #[ -z "${default_value}" ] && default_value="${value}"
 
     index=$((index + 1))
     column=$((column + 1))
@@ -45,20 +51,21 @@ convcommit_selector() {
   done < "${convcommit_file}"
 
   if [ "${index}" -gt 64 ]; then
-    [ -n "${has_manual_input}" ] && echo "Press [space] for manual input" >&2
-    echo -n "Choose commit ${stage} (default: ${default_value}): " >&2
+    [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
+    echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
     stty -icanon -echo
     key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
     stty icanon echo
     echo "" >&2
     #echo "Pressed key: $key" >&2
     index=64
+    input=${default_value}
     while read -r line; do
       prefix=$(echo "${line}" | cut -d ':' -f 1)
       value=$(echo "${line}" | cut -d ':' -f 2)
       [ "${prefix}" != "${stage}" ] && continue
       [ "${value}" = "_" ] && continue
-      [ -z "${input}" ] && input="${value}"
+      #[ -z "${input}" ] && input="${value}"
       index=$((index + 1))
       letter=$(printf "\\$(printf '%03o' ${index})")
       [ "${key}" = "${letter}" ] && input="${value}"
@@ -67,13 +74,18 @@ convcommit_selector() {
     key=" "
   fi
 
-  if [ "${key}" = " " ]; then
+  if [ "${key}" = "." ]; then
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" >> "${convcommit_file}"
   fi
 
-  #echo "Your input is: ${input}" >&2
+  tput cuu1 >&2
+  tput el >&2
+
+  echo "Selected value: ${input:-[empty]}" >&2
+
+  echo "" >&2
 
   echo "${input}"
 }

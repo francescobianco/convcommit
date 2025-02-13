@@ -1,6 +1,6 @@
 type:fix
 type:build
-type:chore
+type:~chore
 type:docs
 type:merge
 type:feat
@@ -15,6 +15,9 @@ type:deps
 type:wip
 type:init
 scope:_
+scope:~
 message:_
+message:~
 scope:test
 message:test
+scope:cavallo
