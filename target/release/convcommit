@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T17:20:51Z
+# @build_date: 2025-02-13T17:26:39Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -38,7 +38,7 @@ main() {
             echo "Unknown option: $1" >&2
             exit 1
             ;;
-      esac
+        esac
         ;;
       *)
         break

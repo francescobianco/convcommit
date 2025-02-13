@@ -5,7 +5,7 @@ install:
 release:
 	@mush build --release
 	@git add .
-	@git commit -m "Release" || true
+	@git commit -m "$(shell convcommit)" || true
 	@git push
 
 test-message:
