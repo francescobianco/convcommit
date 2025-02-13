@@ -17,7 +17,8 @@ type:init
 scope:_
 scope:~
 message:_
-message:~
+message:~_
 scope:test
 message:test
 scope:cavallo
+message:milano

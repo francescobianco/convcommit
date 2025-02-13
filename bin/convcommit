@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T15:27:00Z
+# @build_date: 2025-02-13T15:35:42Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -122,14 +122,15 @@ convcommit_selector() {
     value=$(echo "${line}" | cut -d ':' -f 2)
 
     [ "${prefix}" != "${stage}" ] && continue
-    if [ "${value}" = "_" ]; then
-      has_manual_input=true
-      continue
-    fi
 
     if [ "${value#\~}" != "$value" ]; then
       value="${value#\~}"
       default_value="${value}"
+    fi
+
+    if [ "${value}" = "_" ]; then
+      has_manual_input=true
+      continue
     fi
 
     [ -z "${value}" ] && continue
@@ -172,6 +173,8 @@ convcommit_selector() {
   fi
 
   if [ "${key}" = "." ]; then
+    tput cuu1 >&2
+    tput el >&2
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" >> "${convcommit_file}"
@@ -180,7 +183,7 @@ convcommit_selector() {
   tput cuu1 >&2
   tput el >&2
 
-  echo "Selected value: ${input:-[empty]}" >&2
+  echo "Selected commit ${stage}: ${input:-[empty]}" >&2
 
   echo "" >&2
 

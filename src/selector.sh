@@ -25,14 +25,15 @@ convcommit_selector() {
     value=$(echo "${line}" | cut -d ':' -f 2)
 
     [ "${prefix}" != "${stage}" ] && continue
-    if [ "${value}" = "_" ]; then
-      has_manual_input=true
-      continue
-    fi
 
     if [ "${value#\~}" != "$value" ]; then
       value="${value#\~}"
       default_value="${value}"
+    fi
+
+    if [ "${value}" = "_" ]; then
+      has_manual_input=true
+      continue
     fi
 
     [ -z "${value}" ] && continue
@@ -75,6 +76,8 @@ convcommit_selector() {
   fi
 
   if [ "${key}" = "." ]; then
+    tput cuu1 >&2
+    tput el >&2
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" >> "${convcommit_file}"
@@ -83,7 +86,7 @@ convcommit_selector() {
   tput cuu1 >&2
   tput el >&2
 
-  echo "Selected value: ${input:-[empty]}" >&2
+  echo "Selected commit ${stage}: ${input:-[empty]}" >&2
 
   echo "" >&2
 
