@@ -9,6 +9,7 @@ convcommit_selector() {
   local columns
   local columns_width
   local default_value
+  local field
 
   convcommit_file="$1"
   stage="$2"
@@ -38,11 +39,9 @@ convcommit_selector() {
 
     [ -z "${value}" ] && continue
 
-    #[ -z "${default_value}" ] && default_value="${value}"
-
     index=$((index + 1))
     column=$((column + 1))
-    letter=$(printf "\\$(printf '%03o' ${index})")
+    letter=$(printf "%b" "\\$(printf '%03o' "$index")")
 
     printf "[%s] %-${columns_width}s" "$letter" "$value" >&2
     if [ "${column}" -eq "${columns}" ]; then
@@ -70,9 +69,17 @@ convcommit_selector() {
       [ "${value}" = "_" ] && continue
       #[ -z "${input}" ] && input="${value}"
       index=$((index + 1))
-      letter=$(printf "\\$(printf '%03o' ${index})")
+      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
       [ "${key}" = "${letter}" ] && input="${value}"
     done < "${convcommit_file}"
+    if echo "${input}" | grep -qi '[a-z][a-z]*=?'; then
+      while echo "${input}" | grep -qi '[a-z][a-z]*=?'; do
+        field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
+        echo -n "Insert value for '${field}': " >&2
+        read -r value
+        input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
+      done
+    fi
   elif [ -n "${has_manual_input}" ]; then
     key="."
   fi
@@ -82,7 +89,8 @@ convcommit_selector() {
     tput el >&2
     echo -n "Manually type a ${stage}: " >&2
     read -r input
-    echo "${stage}:${input}" >> "${convcommit_file}"
+    echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
+    input=$(echo "${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1 \2/g')
   fi
 
   tput cuu1 >&2
