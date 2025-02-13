@@ -1,0 +1,28 @@
+type:fix
+type:build
+type:~chore
+type:docs
+type:merge
+type:feat
+type:style
+type:refactor
+type:perf
+type:test
+type:ci
+type:revert
+type:security
+type:deps
+type:wip
+type:init
+scope:_
+scope:~
+message:_
+message:~_
+message:fixed issue=?
+scope:auth
+scope:session
+message:cane=? gatto=?
+message:io=? tu=?
+message:cane=? plutio=?
+message:tipo=? pane=?
+message:pluto=? mino=?

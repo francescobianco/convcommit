@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# @BP010: Release metadata
+# @package: convcommit
+# @build_type: bin
+# @build_with: Mush 0.2.0 (2025-02-01 develop)
+# @build_date: 2025-02-13T17:32:47Z
+set -e
+use() { return 0; }
+extern() { return 0; }
+legacy() { return 0; }
+module() { return 0; }
+public() { return 0; }
+embed() { return 0; }
+## BP004: Compile the entrypoint
+
+module selector
+
+main() {
+  local commit_all
+  local push
+  local message
+  local commit_message
+  local commit_type
+  local commit_scope
+  local convcommit_file
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -*)
+        case "$1" in
+          -a|--all)
+            commit_all=true
+            ;;
+          -p|--push)
+            push=true
+            ;;
+          *)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+        esac
+        ;;
+      *)
+        break
+        ;;
+    esac
+    shift
+  done || true
+
+  convcommit_file=".convcommit"
+
+  if [ ! -f "${convcommit_file}" ]; then
+    # shellcheck disable=SC2129
+    echo "type:fix" >> "${convcommit_file}"
+    echo "type:build" >> "${convcommit_file}"
+    echo "type:~chore" >> "${convcommit_file}"
+    echo "type:docs" >> "${convcommit_file}"
+    echo "type:merge" >> "${convcommit_file}"
+    echo "type:feat" >> "${convcommit_file}"
+    echo "type:style" >> "${convcommit_file}"
+    echo "type:refactor" >> "${convcommit_file}"
+    echo "type:perf" >> "${convcommit_file}"
+    echo "type:test" >> "${convcommit_file}"
+    echo "type:ci" >> "${convcommit_file}"
+    echo "type:revert" >> "${convcommit_file}"
+    echo "type:security" >> "${convcommit_file}"
+    echo "type:deps" >> "${convcommit_file}"
+    echo "type:wip" >> "${convcommit_file}"
+    echo "type:init" >> "${convcommit_file}"
+    echo "scope:_" >> "${convcommit_file}"
+    echo "scope:~" >> "${convcommit_file}"
+    echo "message:_" >> "${convcommit_file}"
+    echo "message:~_" >> "${convcommit_file}"
+  fi
+
+  commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
+  commit_scope=$(convcommit_selector "$convcommit_file" "scope")
+  commit_message=$(convcommit_selector "$convcommit_file" "message")
+
+  if [ -n "${commit_scope}" ]; then
+    message="${commit_type}(${commit_scope}): ${commit_message}"
+  else
+    message="${commit_type}: ${commit_message}"
+  fi
+
+  if [ -n "$commit_all" ]; then
+    git add .
+    git commit -am "${message}" && true
+  else
+    echo "${message}"
+  fi
+
+  if [ -n "$push" ]; then
+    git config credential.helper 'cache --timeout=3600'
+    git push
+  fi
+}
+
+
+convcommit_selector() {
+  local convcommit_file
+  local stage
+  local has_manual_input
+  local input
+  local key
+  local columns
+  local columns_width
+  local default_value
+  local field
+
+  convcommit_file="$1"
+  stage="$2"
+  columns="${3:-1}"
+  columns_width="${4:-80}"
+
+  echo "==> Select ${stage}" >&2
+
+  index=64
+  column=0
+  default_value=
+  while read -r line; do
+    prefix=$(echo "${line}" | cut -d ':' -f 1)
+    value=$(echo "${line}" | cut -d ':' -f 2)
+
+    [ "${prefix}" != "${stage}" ] && continue
+
+    if [ "${value#\~}" != "$value" ]; then
+      value="${value#\~}"
+      default_value="${value}"
+    fi
+
+    if [ "${value}" = "_" ]; then
+      has_manual_input=true
+      continue
+    fi
+
+    [ -z "${value}" ] && continue
+
+    index=$((index + 1))
+    column=$((column + 1))
+    letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+
+    printf "[%s] %-${columns_width}s" "$letter" "$value" >&2
+    if [ "${column}" -eq "${columns}" ]; then
+      column=0
+      printf "\n" >&2
+    fi
+  done < "${convcommit_file}"
+
+  if [ "${index}" -gt 64 ]; then
+    input=${default_value}
+    [ "${default_value}" = "_" ] && default_value="[manual input]"
+    [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
+    echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
+    stty -icanon -echo
+    key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
+    stty icanon echo
+    echo "" >&2
+    #echo "Pressed key: $key" >&2
+    index=64
+    while read -r line; do
+      prefix=$(echo "${line}" | cut -d ':' -f 1)
+      value=$(echo "${line}" | cut -d ':' -f 2)
+      [ "${prefix}" != "${stage}" ] && continue
+      [ "${value#\~}" != "$value" ] && value="${value#\~}"
+      [ "${value}" = "_" ] && continue
+      #[ -z "${input}" ] && input="${value}"
+      index=$((index + 1))
+      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+      [ "${key}" = "${letter}" ] && input="${value}"
+    done < "${convcommit_file}"
+  elif [ -n "${has_manual_input}" ]; then
+    key="."
+  fi
+
+  if [ "${key}" = "." ] || [ "${input}" = "_" ]; then
+    tput cuu1 >&2
+    tput el >&2
+    echo -n "Manually type a ${stage}: " >&2
+    read -r input
+    echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
+  fi
+
+  tput cuu1 >&2
+  tput el >&2
+
+  echo "Selected commit ${stage}: ${input:-[empty]}" >&2
+
+  echo "" >&2
+
+  if echo "${input}" | grep -qi '[a-z][a-z]*=?'; then
+    while echo "${input}" | grep -qi '[a-z][a-z]*=?'; do
+      field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
+      echo -n "Insert value for '${field}': " >&2
+      read -r value
+      # shellcheck disable=SC2001
+      input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
+    done
+
+    echo "" >&2
+  fi
+
+  # shellcheck disable=SC2001
+  input=$(echo "${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1 \2/g')
+
+  echo "${input}"
+}
+## BP005: Execute the entrypoint
+main "$@"
