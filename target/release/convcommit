@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T15:49:08Z
+# @build_date: 2025-02-13T15:50:55Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -70,7 +70,9 @@ main() {
     echo "type:wip" >> "${convcommit_file}"
     echo "type:init" >> "${convcommit_file}"
     echo "scope:_" >> "${convcommit_file}"
+    echo "scope:~" >> "${convcommit_file}"
     echo "message:_" >> "${convcommit_file}"
+    echo "message:~_" >> "${convcommit_file}"
   fi
 
   #commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)

@@ -9,5 +9,5 @@ release:
 	@git push
 
 test-message:
-	@#rm .convcommit || true
+	@rm .convcommit || true
 	@MESSAGE=$$(mush run) && echo "Message: $$MESSAGE"

@@ -56,7 +56,9 @@ main() {
     echo "type:wip" >> "${convcommit_file}"
     echo "type:init" >> "${convcommit_file}"
     echo "scope:_" >> "${convcommit_file}"
+    echo "scope:~" >> "${convcommit_file}"
     echo "message:_" >> "${convcommit_file}"
+    echo "message:~_" >> "${convcommit_file}"
   fi
 
   #commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
