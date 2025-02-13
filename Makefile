@@ -10,4 +10,4 @@ release:
 
 test-message:
 	@#rm .convcommit || true
-	@MESSAGE=$$(mush run) && echo "Message: $$MESSAGE"
+	@MESSAGE=$$(mush run) && echo "Message --> $$MESSAGE"

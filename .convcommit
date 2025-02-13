@@ -1,6 +1,6 @@
 type:fix
 type:build
-type:chore
+type:~chore
 type:docs
 type:merge
 type:feat
@@ -18,11 +18,11 @@ scope:_
 scope:~
 message:_
 message:~_
-message:aaa
 message:fixed issue=?
-message:ciao=?
-message:ciao come stai=? panino=? meno=?
-message:cane=?
-message:Pane=?
-message:po_po=?
-message:Ciao=?
+scope:auth
+scope:session
+message:cane=? gatto=?
+message:io=? tu=?
+message:cane=? plutio=?
+message:tipo=? pane=?
+message:pluto=? mino=?

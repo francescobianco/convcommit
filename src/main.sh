@@ -41,7 +41,7 @@ main() {
     # shellcheck disable=SC2129
     echo "type:fix" >> "${convcommit_file}"
     echo "type:build" >> "${convcommit_file}"
-    echo "type:chore" >> "${convcommit_file}"
+    echo "type:~chore" >> "${convcommit_file}"
     echo "type:docs" >> "${convcommit_file}"
     echo "type:merge" >> "${convcommit_file}"
     echo "type:feat" >> "${convcommit_file}"

@@ -72,14 +72,6 @@ convcommit_selector() {
       letter=$(printf "%b" "\\$(printf '%03o' "$index")")
       [ "${key}" = "${letter}" ] && input="${value}"
     done < "${convcommit_file}"
-    if echo "${input}" | grep -qi '[a-z][a-z]*=?'; then
-      while echo "${input}" | grep -qi '[a-z][a-z]*=?'; do
-        field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
-        echo -n "Insert value for '${field}': " >&2
-        read -r value
-        input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
-      done
-    fi
   elif [ -n "${has_manual_input}" ]; then
     key="."
   fi
@@ -90,7 +82,6 @@ convcommit_selector() {
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
-    input=$(echo "${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1 \2/g')
   fi
 
   tput cuu1 >&2
@@ -99,6 +90,19 @@ convcommit_selector() {
   echo "Selected commit ${stage}: ${input:-[empty]}" >&2
 
   echo "" >&2
+
+  if echo "${input}" | grep -qi '[a-z][a-z]*=?'; then
+    while echo "${input}" | grep -qi '[a-z][a-z]*=?'; do
+      field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
+      echo -n "Insert value for '${field}': " >&2
+      read -r value
+      input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
+    done
+
+    echo "" >&2
+  fi
+
+  input=$(echo "${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1 \2/g')
 
   echo "${input}"
 }
