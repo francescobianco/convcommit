@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T17:19:54Z
+# @build_date: 2025-02-13T17:20:51Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -30,11 +30,9 @@ main() {
         case "$1" in
           -a|--all)
             commit_all=true
-
             ;;
           -p|--push)
             push=true
-
             ;;
           *)
             echo "Unknown option: $1" >&2

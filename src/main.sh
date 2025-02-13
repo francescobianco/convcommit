@@ -16,11 +16,9 @@ main() {
         case "$1" in
           -a|--all)
             commit_all=true
-
             ;;
           -p|--push)
             push=true
-
             ;;
           *)
             echo "Unknown option: $1" >&2
