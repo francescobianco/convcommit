@@ -96,12 +96,14 @@ convcommit_selector() {
       field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
       echo -n "Insert value for '${field}': " >&2
       read -r value
+      # shellcheck disable=SC2001
       input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
     done
 
     echo "" >&2
   fi
 
+  # shellcheck disable=SC2001
   input=$(echo "${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1 \2/g')
 
   echo "${input}"
