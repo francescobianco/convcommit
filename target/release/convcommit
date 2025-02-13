@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T15:35:42Z
+# @build_date: 2025-02-13T15:36:02Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -73,8 +73,8 @@ main() {
     echo "message:_" >> "${convcommit_file}"
   fi
 
-  commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
-  commit_scope=$(convcommit_selector "$convcommit_file" "scope")
+  #commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
+  #commit_scope=$(convcommit_selector "$convcommit_file" "scope")
   commit_message=$(convcommit_selector "$convcommit_file" "message")
 
   if [ -n "${commit_scope}" ]; then

@@ -59,8 +59,8 @@ main() {
     echo "message:_" >> "${convcommit_file}"
   fi
 
-  commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
-  commit_scope=$(convcommit_selector "$convcommit_file" "scope")
+  #commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
+  #commit_scope=$(convcommit_selector "$convcommit_file" "scope")
   commit_message=$(convcommit_selector "$convcommit_file" "message")
 
   if [ -n "${commit_scope}" ]; then
