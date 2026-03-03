@@ -2,8 +2,8 @@
 # @BP010: Release metadata
 # @package: convcommit
 # @build_type: bin
-# @build_with: Mush 0.2.0 (2025-02-01 develop)
-# @build_date: 2025-02-13T17:32:47Z
+# @build_with: Mush v0.2.0 (2026-02-06 develop)
+# @build_date: 2026-03-03T09:49:06Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -11,6 +11,7 @@ legacy() { return 0; }
 module() { return 0; }
 public() { return 0; }
 embed() { return 0; }
+inject() { return 0; }
 ## BP004: Compile the entrypoint
 
 module selector
@@ -23,6 +24,9 @@ main() {
   local commit_type
   local commit_scope
   local convcommit_file
+  local direct_type
+  local direct_scope
+  local direct_message
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -34,6 +38,12 @@ main() {
           -p|--push)
             push=true
             ;;
+          -t|--type)
+            direct_type="$2"; shift ;;
+          -s|--scope)
+            direct_scope="$2"; shift ;;
+          -m|--message)
+            direct_message="$2"; shift ;;
           *)
             echo "Unknown option: $1" >&2
             exit 1
@@ -51,6 +61,30 @@ main() {
 
   if [ ! -f "${convcommit_file}" ]; then
     # shellcheck disable=SC2129
+    echo "# convcommit - Conventional Commit message builder" >> "${convcommit_file}"
+    echo "# This file is read by the \`convcommit\` CLI tool to populate" >> "${convcommit_file}"
+    echo "# the interactive selector menus." >> "${convcommit_file}"
+    echo "#" >> "${convcommit_file}"
+    echo "# FORMAT" >> "${convcommit_file}"
+    echo "#   type:<value>      — commit type option (e.g. fix, feat, docs)" >> "${convcommit_file}"
+    echo "#   scope:<value>     — commit scope option" >> "${convcommit_file}"
+    echo "#   message:<value>   — commit message template" >> "${convcommit_file}"
+    echo "#" >> "${convcommit_file}"
+    echo "# SPECIAL PREFIXES" >> "${convcommit_file}"
+    echo "#   ~<value>          — marks the default selection" >> "${convcommit_file}"
+    echo "#   _                 — enables free-text manual input (press \".\")" >> "${convcommit_file}"
+    echo "#" >> "${convcommit_file}"
+    echo "# HOW TO USE (interactive)" >> "${convcommit_file}"
+    echo "#   Run \`convcommit\` in a git repo. A menu appears for type, scope, message." >> "${convcommit_file}"
+    echo "#   Press the letter shown in brackets [A][B]... or [.] for manual input." >> "${convcommit_file}"
+    echo "#" >> "${convcommit_file}"
+    echo "# HOW TO USE (AI agent / non-interactive pipe)" >> "${convcommit_file}"
+    echo "#   Pipe selections as lines, one per stage (type, scope, message)." >> "${convcommit_file}"
+    echo "#   Use the letter shown in the menu, or \".\" to trigger manual input." >> "${convcommit_file}"
+    echo "#   Example:" >> "${convcommit_file}"
+    echo "#     printf \"A\n.\nfix null pointer in login\n\" | convcommit" >> "${convcommit_file}"
+    echo "#   Or use direct flags to bypass the selector entirely:" >> "${convcommit_file}"
+    echo "#     convcommit --type fix --scope auth --message \"fix null pointer\"" >> "${convcommit_file}"
     echo "type:fix" >> "${convcommit_file}"
     echo "type:build" >> "${convcommit_file}"
     echo "type:~chore" >> "${convcommit_file}"
@@ -73,9 +107,9 @@ main() {
     echo "message:~_" >> "${convcommit_file}"
   fi
 
-  commit_type=$(convcommit_selector "$convcommit_file" "type" 4 10)
-  commit_scope=$(convcommit_selector "$convcommit_file" "scope")
-  commit_message=$(convcommit_selector "$convcommit_file" "message")
+  commit_type=${direct_type:-$(convcommit_selector "$convcommit_file" "type" 4 10)}
+  commit_scope=${direct_scope:-$(convcommit_selector "$convcommit_file" "scope")}
+  commit_message=${direct_message:-$(convcommit_selector "$convcommit_file" "message")}
 
   if [ -n "${commit_scope}" ]; then
     message="${commit_type}(${commit_scope}): ${commit_message}"
@@ -152,9 +186,14 @@ convcommit_selector() {
     [ "${default_value}" = "_" ] && default_value="[manual input]"
     [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
     echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
-    stty -icanon -echo
-    key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
-    stty icanon echo
+    if [ -t 0 ]; then
+      stty -icanon -echo
+      key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
+      stty icanon echo
+    else
+      read -r key
+      key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+    fi
     echo "" >&2
     #echo "Pressed key: $key" >&2
     index=64
@@ -174,15 +213,19 @@ convcommit_selector() {
   fi
 
   if [ "${key}" = "." ] || [ "${input}" = "_" ]; then
-    tput cuu1 >&2
-    tput el >&2
+    if [ -t 2 ]; then
+      tput cuu1 >&2
+      tput el >&2
+    fi
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
   fi
 
-  tput cuu1 >&2
-  tput el >&2
+  if [ -t 2 ]; then
+    tput cuu1 >&2
+    tput el >&2
+  fi
 
   echo "Selected commit ${stage}: ${input:-[empty]}" >&2
 

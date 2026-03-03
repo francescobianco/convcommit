@@ -55,9 +55,14 @@ convcommit_selector() {
     [ "${default_value}" = "_" ] && default_value="[manual input]"
     [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
     echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
-    stty -icanon -echo
-    key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
-    stty icanon echo
+    if [ -t 0 ]; then
+      stty -icanon -echo
+      key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
+      stty icanon echo
+    else
+      read -r key
+      key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+    fi
     echo "" >&2
     #echo "Pressed key: $key" >&2
     index=64
@@ -77,15 +82,19 @@ convcommit_selector() {
   fi
 
   if [ "${key}" = "." ] || [ "${input}" = "_" ]; then
-    tput cuu1 >&2
-    tput el >&2
+    if [ -t 2 ]; then
+      tput cuu1 >&2
+      tput el >&2
+    fi
     echo -n "Manually type a ${stage}: " >&2
     read -r input
     echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
   fi
 
-  tput cuu1 >&2
-  tput el >&2
+  if [ -t 2 ]; then
+    tput cuu1 >&2
+    tput el >&2
+  fi
 
   echo "Selected commit ${stage}: ${input:-[empty]}" >&2
 

@@ -1,0 +1,46 @@
+# convcommit - Conventional Commit message builder
+# This file is read by the `convcommit` CLI tool to populate
+# the interactive selector menus.
+#
+# FORMAT
+#   type:<value>      — commit type option (e.g. fix, feat, docs)
+#   scope:<value>     — commit scope option
+#   message:<value>   — commit message template
+#
+# SPECIAL PREFIXES
+#   ~<value>          — marks the default selection
+#   _                 — enables free-text manual input (press ".")
+#
+# HOW TO USE (interactive)
+#   Run `convcommit` in a git repo. A menu appears for type, scope, message.
+#   Press the letter shown in brackets [A][B]... or [.] for manual input.
+#
+# HOW TO USE (AI agent / non-interactive pipe)
+#   Pipe selections as lines, one per stage (type, scope, message).
+#   Use the letter shown in the menu, or "." to trigger manual input.
+#   Example:
+#     printf "A\n.\nfix null pointer in login\n" | convcommit
+#   Or use direct flags to bypass the selector entirely:
+#     convcommit --type fix --scope auth --message "fix null pointer"
+type:fix
+type:build
+type:~chore
+type:docs
+type:merge
+type:feat
+type:style
+type:refactor
+type:perf
+type:test
+type:ci
+type:revert
+type:security
+type:deps
+type:wip
+type:init
+scope:_
+scope:~
+message:_
+message:~_
+scope:auth
+message:test message
