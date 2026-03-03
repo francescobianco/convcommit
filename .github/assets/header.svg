@@ -161,7 +161,7 @@
     </text>
   </g>
 
-  <!-- ═══════════════════ SCENARIO 2: convcommit --add … -t -s -m -p ═══════════════════ -->
+  <!-- ═══════════════════ SCENARIO 2: direct flags mode ═══════════════════ -->
 
   <!-- S2A · direct flags command + label -->
   <g class="s2a">
