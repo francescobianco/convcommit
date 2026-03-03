@@ -2,6 +2,7 @@
 name = "convcommit"
 version = "0.1.0"
 edition = "2022"
+description = "Interactive Conventional Commits builder for the terminal"
 
 # See more keys and their definitions at https://mush.javanile.org/manifest.html
 
