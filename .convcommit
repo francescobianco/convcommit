@@ -78,3 +78,6 @@ scope:
 message:add new feature
 scope:ui
 message:implemented colors on ui
+scope:devex
+message:clean up
+message:cadd TODO for next steps
