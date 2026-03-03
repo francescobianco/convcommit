@@ -1,4 +1,5 @@
 
+module color
 module init
 module selector
 
@@ -13,10 +14,11 @@ usage() {
   echo "  -a, --all               Stage all changes (git add .) before committing"
   echo "  -p, --push              Push to remote after committing"
   echo "      --reset             Regenerate .convcommit with latest defaults"
+  echo "      --no-color          Disable colored output"
   echo "  -h, --help              Print this help and exit"
   echo ""
   echo "Non-interactive (pipe) usage:"
-  echo "  printf 'F\n\nmy message\n' | convcommit"
+  echo "  printf 'F\\n\\nmy message\\n' | convcommit"
   echo ""
   echo "Direct flags usage:"
   echo "  convcommit --type fix --scope auth --message 'fix null pointer'"
@@ -62,6 +64,9 @@ main() {
           --reset)
             rm -f ".convcommit"
             ;;
+          --no-color)
+            CONVCOMMIT_NO_COLOR=1
+            ;;
           *)
             echo "Unknown option: $1" >&2
             exit 1
@@ -75,24 +80,26 @@ main() {
     shift
   done || true
 
+  convcommit_color_init
+
   # Pre-flight checks — only in interactive/commit mode (stdout is a TTY).
   # Skipped when stdout is captured (msg=$(convcommit ...)) to allow message injection.
   if [ -t 1 ]; then
     if [ -n "$commit_all" ] || [ -n "$add_files" ]; then
       if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
-        echo "error: nothing to commit, working tree clean" >&2
+        printf "$(cc_red)error:$(cc_reset) nothing to commit, working tree clean\n" >&2
         exit 1
       fi
     fi
     if [ -n "$push" ]; then
       if ! git remote | grep -q '.'; then
-        echo "error: no remote configured" >&2
+        printf "$(cc_red)error:$(cc_reset) no remote configured\n" >&2
         exit 1
       fi
       local behind
       behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
       if [ "$behind" -gt 0 ]; then
-        echo "error: branch is behind remote by ${behind} commit(s), run 'git pull' first" >&2
+        printf "$(cc_red)error:$(cc_reset) branch is behind remote by $(cc_yellow)%s$(cc_reset) commit(s), run '$(cc_blue)git pull$(cc_reset)' first\n" "$behind" >&2
         exit 1
       fi
     fi

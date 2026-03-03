@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush v0.2.0 (2026-02-06 develop)
-# @build_date: 2026-03-03T11:11:58Z
+# @build_date: 2026-03-03T11:33:51Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -14,6 +14,7 @@ embed() { return 0; }
 inject() { return 0; }
 ## BP004: Compile the entrypoint
 
+module color
 module init
 module selector
 
@@ -28,10 +29,11 @@ usage() {
   echo "  -a, --all               Stage all changes (git add .) before committing"
   echo "  -p, --push              Push to remote after committing"
   echo "      --reset             Regenerate .convcommit with latest defaults"
+  echo "      --no-color          Disable colored output"
   echo "  -h, --help              Print this help and exit"
   echo ""
   echo "Non-interactive (pipe) usage:"
-  echo "  printf 'F\n\nmy message\n' | convcommit"
+  echo "  printf 'F\\n\\nmy message\\n' | convcommit"
   echo ""
   echo "Direct flags usage:"
   echo "  convcommit --type fix --scope auth --message 'fix null pointer'"
@@ -77,6 +79,9 @@ main() {
           --reset)
             rm -f ".convcommit"
             ;;
+          --no-color)
+            CONVCOMMIT_NO_COLOR=1
+            ;;
           *)
             echo "Unknown option: $1" >&2
             exit 1
@@ -90,24 +95,26 @@ main() {
     shift
   done || true
 
+  convcommit_color_init
+
   # Pre-flight checks — only in interactive/commit mode (stdout is a TTY).
   # Skipped when stdout is captured (msg=$(convcommit ...)) to allow message injection.
   if [ -t 1 ]; then
     if [ -n "$commit_all" ] || [ -n "$add_files" ]; then
       if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
-        echo "error: nothing to commit, working tree clean" >&2
+        printf "$(cc_red)error:$(cc_reset) nothing to commit, working tree clean\n" >&2
         exit 1
       fi
     fi
     if [ -n "$push" ]; then
       if ! git remote | grep -q '.'; then
-        echo "error: no remote configured" >&2
+        printf "$(cc_red)error:$(cc_reset) no remote configured\n" >&2
         exit 1
       fi
       local behind
       behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
       if [ "$behind" -gt 0 ]; then
-        echo "error: branch is behind remote by ${behind} commit(s), run 'git pull' first" >&2
+        printf "$(cc_red)error:$(cc_reset) branch is behind remote by $(cc_yellow)%s$(cc_reset) commit(s), run '$(cc_blue)git pull$(cc_reset)' first\n" "$behind" >&2
         exit 1
       fi
     fi
@@ -143,6 +150,33 @@ main() {
     git push
   fi
 }
+
+# Respects https://no-color.org and --no-color flag.
+# Call convcommit_color_init once at startup (after arg parsing).
+# Then use cc_* functions to get ANSI sequences; they return empty
+# strings when color is disabled, so callers need no conditionals.
+
+convcommit_color_init() {
+  if [ -n "${NO_COLOR:-}" ] || [ "${TERM:-}" = "dumb" ] || [ "${CONVCOMMIT_NO_COLOR:-0}" = "1" ]; then
+    CONVCOMMIT_COLOR=0
+  else
+    CONVCOMMIT_COLOR=1
+  fi
+}
+
+_cc() { [ "${CONVCOMMIT_COLOR:-1}" = "1" ] && printf '%b' "$1"; }
+
+cc_reset()  { _cc '\033[0m'; }
+cc_bold()   { _cc '\033[1m'; }
+cc_dim()    { _cc '\033[2m'; }
+cc_green()  { _cc '\033[38;2;166;227;161m'; }   # #a6e3a1
+cc_blue()   { _cc '\033[38;2;137;180;250m'; }   # #89b4fa
+cc_yellow() { _cc '\033[38;2;249;226;175m'; }   # #f9e2af
+cc_mauve()  { _cc '\033[38;2;203;166;247m'; }   # #cba6f7
+cc_red()    { _cc '\033[38;2;243;139;168m'; }   # #f38ba8
+cc_teal()   { _cc '\033[38;2;148;226;213m'; }   # #94e2d5
+cc_text()   { _cc '\033[38;2;205;214;244m'; }   # #cdd6f4
+cc_gray()   { _cc '\033[38;2;88;91;112m'; }     # #585b70
 
 convcommit_init_file() {
   local convcommit_file="$1"
@@ -240,13 +274,27 @@ convcommit_selector() {
   local default_value
   local field
   local forced_letter
+  local marker
+  local stage_upper
+  local r b gy tx yw mp gn bd
 
   convcommit_file="$1"
   stage="$2"
   columns="${3:-1}"
   columns_width="${4:-80}"
 
-  echo "==> Select ${stage}" >&2
+  # Capture color sequences once (empty strings when --no-color)
+  r="$(cc_reset)"
+  b="$(cc_blue)"
+  gy="$(cc_gray)"
+  tx="$(cc_text)"
+  yw="$(cc_yellow)"
+  mp="$(cc_mauve)"
+  gn="$(cc_green)"
+  bd="$(cc_bold)"
+
+  stage_upper=$(echo "$stage" | tr '[:lower:]' '[:upper:]')
+  printf "${gy}── ${r}${bd}${b}Select commit %s${r}${gy} ──────────────────────────────────────────${r}\n" "$stage_upper" >&2
 
   index=64
   column=0
@@ -286,19 +334,24 @@ convcommit_selector() {
       letter=$(printf "%b" "\\$(printf '%03o' "$index")")
     fi
 
+    marker="${gy} ${r}"
+    [ "${value}" = "${default_value}" ] && marker="${yw}★${r}"
+
     column=$((column + 1))
-    printf "[%s] %-${columns_width}s" "$letter" "$value" >&2
+    printf "%s${gy}[${r}${b}%s${r}${gy}]${r} ${tx}%-${columns_width}s${r}" "$marker" "$letter" "$value" >&2
     if [ "${column}" -eq "${columns}" ]; then
       column=0
       printf "\n" >&2
     fi
   done < "${convcommit_file}"
 
+  [ "${column}" -ne 0 ] && printf "\n" >&2
+
   if [ "${index}" -gt 64 ]; then
     input=${default_value}
     [ "${default_value}" = "_" ] && default_value="[manual input]"
-    [ -n "${has_manual_input}" ] && echo "[.] manual input" >&2
-    echo -n "Choose commit ${stage} (default: ${default_value:-[empty]}): " >&2
+    [ -n "${has_manual_input}" ] && printf " ${gy}[${r}${mp}.${r}${gy}]${r} ${gy}free text${r}\n" >&2
+    printf "${gy}Choose ${r}${bd}${b}%s${r}${gy} (default: ${r}${yw}%s${r}${gy}):${r} " "$stage" "${default_value:-[empty]}" >&2
     if [ -t 0 ]; then
       stty -icanon -echo
       key=$(dd bs=1 count=1 2>/dev/null | tr '[:lower:]' '[:upper:]')
@@ -346,7 +399,7 @@ convcommit_selector() {
       tput cuu1 >&2
       tput el >&2
     fi
-    echo -n "Manually type a ${stage}: " >&2
+    printf "${yw}⟩${r} ${gy}Type %s:${r} " "$stage" >&2
     read -r input
     echo "${stage}:${input}" | sed 's/\([^ =]\+\)=\([^ ]*\)/\1=?/g' >> "${convcommit_file}"
   fi
@@ -356,14 +409,14 @@ convcommit_selector() {
     tput el >&2
   fi
 
-  echo "Selected commit ${stage}: ${input:-[empty]}" >&2
+  printf "${gn}✓${r} ${b}%s${r}  ${bd}${tx}%s${r}\n" "$stage" "${input:-[empty]}" >&2
 
   echo "" >&2
 
   if echo "${input}" | grep -qi '[a-z][a-z]*=?'; then
     while echo "${input}" | grep -qi '[a-z][a-z]*=?'; do
       field=$(echo "${input}" | grep -oi '[a-z][a-z]*=?' | head -n 1 | cut -d= -f1)
-      echo -n "Insert value for '${field}': " >&2
+      printf "${yw}⟩${r} ${gy}Insert value for '${r}${b}%s${r}${gy}':${r} " "$field" >&2
       read -r value
       # shellcheck disable=SC2001
       input=$(echo "${input}" | sed "s/\($field\)=?/\1 $value/")
