@@ -56,3 +56,5 @@ message:_
 message:~_
 scope:
 message:cleanup root dir
+scope:docs
+message:fix markdown
