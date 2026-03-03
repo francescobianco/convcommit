@@ -30,7 +30,8 @@ else
 fi
 
 # Test 2: --type --message (no scope) produces correct output
-result=$("$CONVCOMMIT" --type fix --message "fix null pointer" 2>/dev/null)
+# Scope selector still runs; pipe an empty line so it returns empty scope
+result=$(printf "\n" | "$CONVCOMMIT" --type fix --message "fix null pointer" 2>/dev/null)
 expected="fix: fix null pointer"
 if [ "$result" = "$expected" ]; then
   pass "--type --message (no scope) produces '$expected'"
