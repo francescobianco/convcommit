@@ -1,200 +1,214 @@
-<svg width="720" height="430" viewBox="0 0 720 430" xmlns="http://www.w3.org/2000/svg">
+<svg width="720" height="420" viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       text { font-family: 'Courier New', Courier, monospace; }
 
-      .fade { animation: fadeIn 0.35s ease both; }
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(3px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
+      /* ── Scenario 1 groups (interactive -a -p) ── */
+      .s1a { animation: s1a 20s infinite; }
+      .s1b { animation: s1b 20s infinite; }
+      .s1c { animation: s1c 20s infinite; }
+      .s1d { animation: s1d 20s infinite; }
+      .s1e { animation: s1e 20s infinite; }
+      .s1f { animation: s1f 20s infinite; }
 
-      .d0  { animation-delay: 0.3s; }
-      .d1  { animation-delay: 1.0s; }
-      .d2  { animation-delay: 1.3s; }
-      .d3  { animation-delay: 1.5s; }
-      .d4  { animation-delay: 1.7s; }
-      .d5  { animation-delay: 1.9s; }
-      .d6  { animation-delay: 2.1s; }
-      .d7  { animation-delay: 2.9s; }
-      .d8  { animation-delay: 3.3s; }
-      .d9  { animation-delay: 3.5s; }
-      .d10 { animation-delay: 4.1s; }
-      .d11 { animation-delay: 4.5s; }
-      .d12 { animation-delay: 5.1s; }
-      .d13 { animation-delay: 5.3s; }
-      .d14 { animation-delay: 5.5s; }
-      .d15 { animation-delay: 5.8s; }
-      .d16 { animation-delay: 6.2s; }
+      /* ── Scenario 2 groups (direct flags) ── */
+      .s2a { animation: s2a 20s infinite; }
+      .s2b { animation: s2b 20s infinite; }
+      .s2c { animation: s2c 20s infinite; }
 
-      .blink { animation: blink 1s 6.5s infinite; }
-      @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: 0; }
-      }
+      .cur { animation: blink 1s infinite; }
 
-      .scanline {
-        animation: scanline 8s linear infinite;
-      }
-      @keyframes scanline {
-        from { transform: translateY(-430px); }
-        to   { transform: translateY(430px); }
-      }
+      /* s1: visible from ~0.5s, all fade at 8.8-9.6s (44-48%) */
+      @keyframes s1a { 0%,2%{opacity:0}  4%{opacity:1}  44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+      @keyframes s1b { 0%,6%{opacity:0}  8%{opacity:1}  44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+      @keyframes s1c { 0%,13%{opacity:0} 15%{opacity:1} 44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+      @keyframes s1d { 0%,20%{opacity:0} 22%{opacity:1} 44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+      @keyframes s1e { 0%,27%{opacity:0} 29%{opacity:1} 44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+      @keyframes s1f { 0%,33%{opacity:0} 35%{opacity:1} 44%{opacity:1} 48%{opacity:0} 100%{opacity:0} }
+
+      /* s2: visible from ~10.8s (54%), all fade at 18-18.8s (90-94%) */
+      @keyframes s2a { 0%,54%{opacity:0} 56%{opacity:1} 90%{opacity:1} 94%{opacity:0} 100%{opacity:0} }
+      @keyframes s2b { 0%,61%{opacity:0} 63%{opacity:1} 90%{opacity:1} 94%{opacity:0} 100%{opacity:0} }
+      @keyframes s2c { 0%,67%{opacity:0} 69%{opacity:1} 90%{opacity:1} 94%{opacity:0} 100%{opacity:0} }
+
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     </style>
-
-    <!-- Terminal glow filter -->
     <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-
-    <!-- Clip path for terminal content -->
-    <clipPath id="terminal-clip">
-      <rect x="1" y="1" width="718" height="428" rx="11"/>
-    </clipPath>
   </defs>
 
-  <!-- Terminal window shadow -->
-  <rect x="4" y="6" width="720" height="430" rx="12" fill="#000000" opacity="0.4"/>
+  <!-- shadow -->
+  <rect x="4" y="6" width="720" height="420" rx="12" fill="#000" opacity="0.35"/>
 
-  <!-- Terminal window background -->
-  <rect width="720" height="430" rx="12" fill="#1e1e2e"/>
+  <!-- terminal background -->
+  <rect width="720" height="420" rx="12" fill="#1e1e2e"/>
 
-  <!-- Subtle scanline effect -->
-  <rect width="720" height="2" fill="#ffffff" opacity="0.015" class="scanline" clip-path="url(#terminal-clip)"/>
-
-  <!-- Title bar -->
+  <!-- titlebar -->
   <rect width="720" height="38" rx="12" fill="#313244"/>
   <rect y="28" width="720" height="10" fill="#313244"/>
 
-  <!-- Traffic lights -->
+  <!-- traffic lights -->
   <circle cx="24" cy="19" r="7" fill="#ff5f57"/>
-  <circle cx="24" cy="19" r="3" fill="#c0392b" opacity="0.4"/>
   <circle cx="46" cy="19" r="7" fill="#ffbd2e"/>
-  <circle cx="46" cy="19" r="3" fill="#e67e22" opacity="0.4"/>
   <circle cx="68" cy="19" r="7" fill="#28ca41"/>
-  <circle cx="68" cy="19" r="3" fill="#27ae60" opacity="0.4"/>
 
-  <!-- Terminal title -->
-  <text x="360" y="24" text-anchor="middle" font-size="12" fill="#6c7086">convcommit — ~/myproject</text>
+  <!-- titlebar label: scenario 1 -->
+  <g class="s1a">
+    <text x="360" y="24" text-anchor="middle" font-size="12" fill="#6c7086">interactive mode — ~/myproject</text>
+  </g>
+  <!-- titlebar label: scenario 2 -->
+  <g class="s2a">
+    <text x="360" y="24" text-anchor="middle" font-size="12" fill="#6c7086">direct flags — ~/myproject</text>
+  </g>
 
-  <!-- ── LINE 0: prompt + command ── -->
-  <text y="64" font-size="13" class="fade d0">
-    <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯</tspan>
-    <tspan fill="#cdd6f4"> convcommit </tspan>
-    <tspan fill="#89b4fa">-a</tspan>
-    <tspan fill="#cdd6f4"> </tspan>
-    <tspan fill="#89b4fa">-p</tspan>
-  </text>
+  <!-- ══════════════════════ SCENARIO 1: convcommit -a -p ══════════════════════ -->
 
-  <!-- ── LINE 1: type selector header ── -->
-  <text x="20" y="85" font-size="11" fill="#45475a" class="fade d1">── Select commit TYPE ────────────────────────────────────────</text>
+  <!-- S1A · command line -->
+  <g class="s1a">
+    <text y="66" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯</tspan>
+      <tspan fill="#cdd6f4"> convcommit </tspan>
+      <tspan fill="#89b4fa">-a -p</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 2: types row 1 ── -->
-  <text y="106" font-size="13" class="fade d2">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#89b4fa">B</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> build   </tspan>
-    <tspan fill="#f9e2af">★</tspan><tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">C</tspan><tspan fill="#45475a">]</tspan><tspan fill="#f9e2af"> chore   </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">D</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> docs    </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">E</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> deps</tspan>
-  </text>
+  <!-- S1B · type selector grid
+       col start x: 20 | 137 | 254 | 371  (15 chars × ~7.8px ≈ 117px) -->
+  <g class="s1b">
+    <text x="20" y="87" font-size="11" fill="#45475a">── Select commit TYPE ──────────────────────────────────────────────</text>
+    <!-- row 1: build ★chore docs deps -->
+    <text y="108" font-size="13">
+      <tspan x="20"  fill="#45475a"> [</tspan><tspan fill="#89b4fa">B</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> build    </tspan>
+      <tspan x="137" fill="#f9e2af">★[</tspan><tspan fill="#89b4fa">C</tspan><tspan fill="#f9e2af">]</tspan><tspan fill="#f9e2af"> chore    </tspan>
+      <tspan x="254" fill="#45475a"> [</tspan><tspan fill="#89b4fa">D</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> docs     </tspan>
+      <tspan x="371" fill="#45475a"> [</tspan><tspan fill="#89b4fa">E</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> deps     </tspan>
+    </text>
+    <!-- row 2: feat fix ci init -->
+    <text y="128" font-size="13">
+      <tspan x="20"  fill="#45475a"> [</tspan><tspan fill="#89b4fa">F</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> feat     </tspan>
+      <tspan x="137" fill="#45475a"> [</tspan><tspan fill="#89b4fa">G</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> fix      </tspan>
+      <tspan x="254" fill="#45475a"> [</tspan><tspan fill="#89b4fa">H</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> ci       </tspan>
+      <tspan x="371" fill="#45475a"> [</tspan><tspan fill="#89b4fa">I</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> init     </tspan>
+    </text>
+    <!-- row 3: merge perf refactor revert -->
+    <text y="148" font-size="13">
+      <tspan x="20"  fill="#45475a"> [</tspan><tspan fill="#89b4fa">J</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> merge    </tspan>
+      <tspan x="137" fill="#45475a"> [</tspan><tspan fill="#89b4fa">K</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> perf     </tspan>
+      <tspan x="254" fill="#45475a"> [</tspan><tspan fill="#89b4fa">L</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> refactor </tspan>
+      <tspan x="371" fill="#45475a"> [</tspan><tspan fill="#89b4fa">M</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> revert   </tspan>
+    </text>
+    <!-- row 4: security style test wip -->
+    <text y="168" font-size="13">
+      <tspan x="20"  fill="#45475a"> [</tspan><tspan fill="#89b4fa">N</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> security </tspan>
+      <tspan x="137" fill="#45475a"> [</tspan><tspan fill="#89b4fa">O</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> style    </tspan>
+      <tspan x="254" fill="#45475a"> [</tspan><tspan fill="#89b4fa">P</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> test     </tspan>
+      <tspan x="371" fill="#45475a"> [</tspan><tspan fill="#89b4fa">W</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> wip      </tspan>
+    </text>
+    <!-- free text -->
+    <text y="188" font-size="13">
+      <tspan x="20" fill="#45475a"> [</tspan><tspan fill="#cba6f7">.</tspan><tspan fill="#45475a">]</tspan>
+      <tspan fill="#585b70"> free text</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 3: types row 2 ── -->
-  <text y="126" font-size="13" class="fade d3">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#89b4fa">F</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> feat    </tspan>
-    <tspan fill="#45475a"> [</tspan><tspan fill="#89b4fa">G</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> fix     </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">H</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> ci      </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">I</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> init</tspan>
-  </text>
+  <!-- S1C · type selected -->
+  <g class="s1c">
+    <text y="210" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓</tspan>
+      <tspan fill="#89b4fa"> type  </tspan>
+      <tspan fill="#a6e3a1" font-weight="bold">feat</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 4: types row 3 ── -->
-  <text y="146" font-size="13" class="fade d4">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#89b4fa">J</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> merge   </tspan>
-    <tspan fill="#45475a"> [</tspan><tspan fill="#89b4fa">K</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> perf    </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">L</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> refactor</tspan>
-    <tspan fill="#45475a"> [</tspan><tspan fill="#89b4fa">M</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> revert</tspan>
-  </text>
+  <!-- S1D · scope + message inputs -->
+  <g class="s1d">
+    <text x="20" y="232" font-size="11" fill="#45475a">── Select commit SCOPE ─────────────────────────────────────────────</text>
+    <text y="252" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓</tspan>
+      <tspan fill="#89b4fa"> scope  </tspan>
+      <tspan fill="#a6e3a1" font-weight="bold">api</tspan>
+    </text>
+    <text x="20" y="274" font-size="11" fill="#45475a">── Commit MESSAGE ──────────────────────────────────────────────────</text>
+    <text y="294" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓</tspan>
+      <tspan fill="#89b4fa"> message  </tspan>
+      <tspan fill="#a6e3a1" font-weight="bold">add new authentication endpoint</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 5: types row 4 ── -->
-  <text y="166" font-size="13" class="fade d5">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#89b4fa">N</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> security</tspan>
-    <tspan fill="#45475a"> [</tspan><tspan fill="#89b4fa">O</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> style   </tspan>
-    <tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">P</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> test    </tspan>
-    <tspan fill="#45475a"> [</tspan><tspan fill="#89b4fa">W</tspan><tspan fill="#45475a">]</tspan><tspan fill="#cdd6f4"> wip</tspan>
-  </text>
+  <!-- S1E · commit + push result -->
+  <g class="s1e">
+    <line x1="20" y1="310" x2="700" y2="310" stroke="#313244" stroke-width="1"/>
+    <text y="330" font-size="13">
+      <tspan x="20" fill="#45475a">[main </tspan><tspan fill="#cba6f7">7a2b3c9</tspan><tspan fill="#45475a">] </tspan>
+      <tspan fill="#a6e3a1">feat</tspan><tspan fill="#45475a">(</tspan><tspan fill="#89b4fa">api</tspan><tspan fill="#45475a">): </tspan>
+      <tspan fill="#cdd6f4">add new authentication endpoint</tspan>
+    </text>
+    <text y="350" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓</tspan>
+      <tspan fill="#585b70"> pushed to </tspan>
+      <tspan fill="#cba6f7">origin/main</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 6: free text option ── -->
-  <text y="186" font-size="13" class="fade d6">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#cba6f7">.</tspan><tspan fill="#45475a">]</tspan>
-    <tspan fill="#585b70"> type freely</tspan>
-  </text>
+  <!-- S1F · idle prompt -->
+  <g class="s1f">
+    <text y="374" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯</tspan>
+      <tspan fill="#cdd6f4"> </tspan><tspan class="cur" fill="#cdd6f4">█</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 7: type selected → feat ── -->
-  <text y="208" font-size="13" class="fade d7">
-    <tspan x="20" fill="#585b70">▶ </tspan>
-    <tspan fill="#a6e3a1" filter="url(#glow)">feat</tspan>
-  </text>
+  <!-- ═══════════════════ SCENARIO 2: convcommit --add … -t -s -m -p ═══════════════════ -->
 
-  <!-- ── LINE 8: scope selector header ── -->
-  <text x="20" y="229" font-size="11" fill="#45475a" class="fade d8">── Select commit SCOPE ───────────────────────────────────────</text>
+  <!-- S2A · direct flags command + label -->
+  <g class="s2a">
+    <text y="66" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯</tspan>
+      <tspan fill="#cdd6f4"> convcommit </tspan>
+      <tspan fill="#89b4fa">--add</tspan>
+      <tspan fill="#cdd6f4"> src/auth.sh </tspan>
+      <tspan fill="#45475a">\</tspan>
+    </text>
+    <text y="87" font-size="13">
+      <tspan x="36" fill="#89b4fa">-t</tspan><tspan fill="#cdd6f4"> fix </tspan>
+      <tspan fill="#89b4fa">-s</tspan><tspan fill="#cdd6f4"> auth </tspan>
+      <tspan fill="#89b4fa">-m</tspan><tspan fill="#cdd6f4"> </tspan>
+      <tspan fill="#f9e2af">"fix null pointer in login"</tspan>
+      <tspan fill="#cdd6f4"> </tspan>
+      <tspan fill="#89b4fa">-p</tspan>
+    </text>
+    <text x="20" y="115" font-size="11" fill="#45475a">── no selector, no manual staging ──────────────────────────────────</text>
+  </g>
 
-  <!-- ── LINE 9: scope options ── -->
-  <text y="250" font-size="13" class="fade d9">
-    <tspan x="20" fill="#45475a">[</tspan><tspan fill="#cba6f7">.</tspan><tspan fill="#45475a">]</tspan><tspan fill="#585b70"> type freely   </tspan>
-    <tspan fill="#f9e2af">★</tspan><tspan fill="#45475a">[</tspan><tspan fill="#89b4fa">B</tspan><tspan fill="#45475a">]</tspan><tspan fill="#f9e2af"> (none)</tspan>
-  </text>
+  <!-- S2B · commit result -->
+  <g class="s2b">
+    <text y="138" font-size="13">
+      <tspan x="20" fill="#45475a">[main </tspan><tspan fill="#cba6f7">d5f3a91</tspan><tspan fill="#45475a">] </tspan>
+      <tspan fill="#f38ba8">fix</tspan><tspan fill="#45475a">(</tspan><tspan fill="#89b4fa">auth</tspan><tspan fill="#45475a">): </tspan>
+      <tspan fill="#cdd6f4">fix null pointer in login</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 10: scope selected → api ── -->
-  <text y="270" font-size="13" class="fade d10">
-    <tspan x="20" fill="#585b70">▶ </tspan>
-    <tspan fill="#a6e3a1" filter="url(#glow)">api</tspan>
-  </text>
+  <!-- S2C · push + idle prompt -->
+  <g class="s2c">
+    <text y="160" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓</tspan>
+      <tspan fill="#585b70"> pushed to </tspan>
+      <tspan fill="#cba6f7">origin/main</tspan>
+    </text>
+    <text y="182" font-size="13">
+      <tspan x="20" fill="#585b70">Done in </tspan>
+      <tspan fill="#f9e2af">0.8s</tspan>
+    </text>
+    <text y="208" font-size="13">
+      <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯</tspan>
+      <tspan fill="#cdd6f4"> </tspan><tspan class="cur" fill="#cdd6f4">█</tspan>
+    </text>
+  </g>
 
-  <!-- ── LINE 11: message selector header ── -->
-  <text x="20" y="291" font-size="11" fill="#45475a" class="fade d11">── Commit MESSAGE ────────────────────────────────────────────</text>
-
-  <!-- ── LINE 12: message typed ── -->
-  <text y="312" font-size="13" class="fade d12">
-    <tspan x="20" fill="#585b70">▶ </tspan>
-    <tspan fill="#a6e3a1" filter="url(#glow)">add new authentication endpoint</tspan>
-  </text>
-
-  <!-- ── DIVIDER ── -->
-  <line x1="20" y1="328" x2="700" y2="328" stroke="#313244" stroke-width="1" class="fade d13"/>
-
-  <!-- ── LINE 13: git commit result ── -->
-  <text y="347" font-size="13" class="fade d14">
-    <tspan x="20" fill="#45475a">[main </tspan>
-    <tspan fill="#cba6f7">7a2b3c9</tspan>
-    <tspan fill="#45475a">] </tspan>
-    <tspan fill="#a6e3a1">feat</tspan>
-    <tspan fill="#45475a">(</tspan>
-    <tspan fill="#89b4fa">api</tspan>
-    <tspan fill="#45475a">): </tspan>
-    <tspan fill="#cdd6f4">add new authentication endpoint</tspan>
-  </text>
-
-  <!-- ── LINE 14: push result ── -->
-  <text y="367" font-size="13" class="fade d15">
-    <tspan x="20" fill="#a6e3a1" filter="url(#glow)">✓ </tspan>
-    <tspan fill="#585b70">pushed to </tspan>
-    <tspan fill="#cba6f7">origin/main</tspan>
-  </text>
-
-  <!-- ── LINE 15: time taken ── -->
-  <text y="387" font-size="12" class="fade d16">
-    <tspan x="20" fill="#45475a">Done in </tspan>
-    <tspan fill="#f9e2af">1.2s</tspan>
-  </text>
-
-  <!-- ── NEW PROMPT with blinking cursor ── -->
-  <text y="410" font-size="13" class="fade d16">
-    <tspan x="20" fill="#a6e3a1" filter="url(#glow)">❯ </tspan>
-    <tspan fill="#cdd6f4" class="blink">█</tspan>
-  </text>
-
-  <!-- Terminal border glow -->
-  <rect width="720" height="430" rx="12" fill="none" stroke="#89b4fa" stroke-width="0.5" opacity="0.2"/>
+  <!-- border glow -->
+  <rect width="720" height="420" rx="12" fill="none" stroke="#89b4fa" stroke-width="0.5" opacity="0.2"/>
 </svg>
