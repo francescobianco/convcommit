@@ -54,3 +54,5 @@ scope:_
 scope:~
 message:_
 message:~_
+scope:
+message:cleanup root dir
