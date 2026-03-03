@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush v0.2.0 (2026-02-06 develop)
-# @build_date: 2026-03-03T09:49:06Z
+# @build_date: 2026-03-03T10:40:22Z
 set -e
 use() { return 0; }
 extern() { return 0; }
@@ -15,6 +15,26 @@ inject() { return 0; }
 ## BP004: Compile the entrypoint
 
 module selector
+
+usage() {
+  echo "Usage: convcommit [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  -t, --type <type>       Commit type (bypasses interactive selector)"
+  echo "  -s, --scope <scope>     Commit scope (bypasses interactive selector)"
+  echo "  -m, --message <msg>     Commit message (bypasses interactive selector)"
+  echo "  -a, --all               Stage all changes (git add .) before committing"
+  echo "  -p, --push              Push to remote after committing"
+  echo "      --reset             Regenerate .convcommit with latest defaults"
+  echo "  -h, --help              Print this help and exit"
+  echo ""
+  echo "Non-interactive (pipe) usage:"
+  echo "  printf 'F\n\nmy message\n' | convcommit"
+  echo ""
+  echo "Direct flags usage:"
+  echo "  convcommit --type fix --scope auth --message 'fix null pointer'"
+  echo "  convcommit -t feat -s api -m 'add endpoint' -a -p"
+}
 
 main() {
   local commit_all
@@ -32,6 +52,10 @@ main() {
     case "$1" in
       -*)
         case "$1" in
+          -h|--help)
+            usage; exit 0 ;;
+          -V|--version)
+            echo "convcommit 0.1.0"; exit 0 ;;
           -a|--all)
             commit_all=true
             ;;
@@ -44,6 +68,9 @@ main() {
             direct_scope="$2"; shift ;;
           -m|--message)
             direct_message="$2"; shift ;;
+          --reset)
+            rm -f ".convcommit"
+            ;;
           *)
             echo "Unknown option: $1" >&2
             exit 1
@@ -73,6 +100,7 @@ main() {
     echo "# SPECIAL PREFIXES" >> "${convcommit_file}"
     echo "#   ~<value>          — marks the default selection" >> "${convcommit_file}"
     echo "#   _                 — enables free-text manual input (press \".\")" >> "${convcommit_file}"
+    echo "#   [X]<value>        — forces key letter X for this entry (e.g. [I]init, [W]wip)" >> "${convcommit_file}"
     echo "#" >> "${convcommit_file}"
     echo "# HOW TO USE (interactive)" >> "${convcommit_file}"
     echo "#   Run \`convcommit\` in a git repo. A menu appears for type, scope, message." >> "${convcommit_file}"
@@ -85,22 +113,33 @@ main() {
     echo "#     printf \"A\n.\nfix null pointer in login\n\" | convcommit" >> "${convcommit_file}"
     echo "#   Or use direct flags to bypass the selector entirely:" >> "${convcommit_file}"
     echo "#     convcommit --type fix --scope auth --message \"fix null pointer\"" >> "${convcommit_file}"
-    echo "type:fix" >> "${convcommit_file}"
-    echo "type:build" >> "${convcommit_file}"
+    echo "#   To regenerate this file with the latest defaults:" >> "${convcommit_file}"
+    echo "#     convcommit --reset" >> "${convcommit_file}"
+    echo "#" >> "${convcommit_file}"
+    echo "# INSTALLATION" >> "${convcommit_file}"
+    echo "#   convcommit is a single bash file with no dependencies." >> "${convcommit_file}"
+    echo "#   Install it locally in your project:" >> "${convcommit_file}"
+    echo "#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \\" >> "${convcommit_file}"
+    echo "#       -o bin/convcommit && chmod +x bin/convcommit" >> "${convcommit_file}"
+    echo "#   Or system-wide:" >> "${convcommit_file}"
+    echo "#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \\" >> "${convcommit_file}"
+    echo "#       -o /usr/local/bin/convcommit && chmod +x /usr/local/bin/convcommit" >> "${convcommit_file}"
+    echo "type:[B]build" >> "${convcommit_file}"
     echo "type:~chore" >> "${convcommit_file}"
-    echo "type:docs" >> "${convcommit_file}"
-    echo "type:merge" >> "${convcommit_file}"
+    echo "type:[D]docs" >> "${convcommit_file}"
+    echo "type:deps" >> "${convcommit_file}"
     echo "type:feat" >> "${convcommit_file}"
-    echo "type:style" >> "${convcommit_file}"
-    echo "type:refactor" >> "${convcommit_file}"
-    echo "type:perf" >> "${convcommit_file}"
-    echo "type:test" >> "${convcommit_file}"
+    echo "type:fix" >> "${convcommit_file}"
     echo "type:ci" >> "${convcommit_file}"
+    echo "type:init" >> "${convcommit_file}"
+    echo "type:merge" >> "${convcommit_file}"
+    echo "type:perf" >> "${convcommit_file}"
+    echo "type:refactor" >> "${convcommit_file}"
     echo "type:revert" >> "${convcommit_file}"
     echo "type:security" >> "${convcommit_file}"
-    echo "type:deps" >> "${convcommit_file}"
-    echo "type:wip" >> "${convcommit_file}"
-    echo "type:init" >> "${convcommit_file}"
+    echo "type:style" >> "${convcommit_file}"
+    echo "type:test" >> "${convcommit_file}"
+    echo "type:[W]wip" >> "${convcommit_file}"
     echo "scope:_" >> "${convcommit_file}"
     echo "scope:~" >> "${convcommit_file}"
     echo "message:_" >> "${convcommit_file}"
@@ -141,6 +180,7 @@ convcommit_selector() {
   local columns_width
   local default_value
   local field
+  local forced_letter
 
   convcommit_file="$1"
   stage="$2"
@@ -158,6 +198,15 @@ convcommit_selector() {
 
     [ "${prefix}" != "${stage}" ] && continue
 
+    # Extract forced letter: [X]value syntax
+    forced_letter=
+    case "$value" in
+      \[?\]*)
+        forced_letter=$(echo "$value" | cut -c2 | tr '[:lower:]' '[:upper:]')
+        value=$(echo "$value" | cut -c4-)
+        ;;
+    esac
+
     if [ "${value#\~}" != "$value" ]; then
       value="${value#\~}"
       default_value="${value}"
@@ -170,10 +219,15 @@ convcommit_selector() {
 
     [ -z "${value}" ] && continue
 
-    index=$((index + 1))
-    column=$((column + 1))
-    letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+    if [ -n "$forced_letter" ]; then
+      index=$(printf '%d' "'${forced_letter}")
+      letter="$forced_letter"
+    else
+      index=$((index + 1))
+      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+    fi
 
+    column=$((column + 1))
     printf "[%s] %-${columns_width}s" "$letter" "$value" >&2
     if [ "${column}" -eq "${columns}" ]; then
       column=0
@@ -195,17 +249,33 @@ convcommit_selector() {
       key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
     fi
     echo "" >&2
-    #echo "Pressed key: $key" >&2
     index=64
     while read -r line; do
       prefix=$(echo "${line}" | cut -d ':' -f 1)
       value=$(echo "${line}" | cut -d ':' -f 2)
       [ "${prefix}" != "${stage}" ] && continue
+
+      # Extract forced letter: [X]value syntax
+      forced_letter=
+      case "$value" in
+        \[?\]*)
+          forced_letter=$(echo "$value" | cut -c2 | tr '[:lower:]' '[:upper:]')
+          value=$(echo "$value" | cut -c4-)
+          ;;
+      esac
+
       [ "${value#\~}" != "$value" ] && value="${value#\~}"
       [ "${value}" = "_" ] && continue
-      #[ -z "${input}" ] && input="${value}"
-      index=$((index + 1))
-      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+      [ -z "${value}" ] && continue
+
+      if [ -n "$forced_letter" ]; then
+        index=$(printf '%d' "'${forced_letter}")
+        letter="$forced_letter"
+      else
+        index=$((index + 1))
+        letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+      fi
+
       [ "${key}" = "${letter}" ] && input="${value}"
     done < "${convcommit_file}"
   elif [ -n "${has_manual_input}" ]; then
