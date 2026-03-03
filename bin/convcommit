@@ -3,7 +3,7 @@
 # @package: convcommit
 # @build_type: bin
 # @build_with: Mush v0.2.0 (2026-02-06 develop)
-# @build_date: 2026-03-03T11:34:18Z
+# @build_date: 2026-03-03T15:09:41Z
 set -e
 use() { return 0; }
 extern() { return 0; }
