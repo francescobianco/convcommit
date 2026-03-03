@@ -53,7 +53,7 @@ else
   fail ".convcommit not created during interactive run" ""
 fi
 
-# Test 2: select type A (fix), manual scope "auth", manual message "fix null pointer"
+# Test 2: select type F (fix, forced [F]fix), manual scope "auth", manual message "fix null pointer"
 # Output goes to TMPOUT so we can inspect it cleanly
 true > "$TMPOUT"
 expect -c "
@@ -61,7 +61,7 @@ expect -c "
   log_user 0
   spawn sh -c \"$CONVCOMMIT > $TMPOUT\"
   expect \"Choose commit type\"
-  send \"A\"
+  send \"G\"
   expect \"Manually type a scope\"
   send \"auth\r\"
   expect \"Manually type a message\"
@@ -71,7 +71,7 @@ expect -c "
 
 result=$(cat "$TMPOUT")
 if [ "$result" = "fix(auth): fix null pointer" ]; then
-  pass "interactive: fix(auth): fix null pointer"
+  pass "interactive: fix → sequential G → fix(auth): fix null pointer"
 else
   fail "interactive: expected 'fix(auth): fix null pointer'" "$result"
 fi

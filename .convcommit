@@ -1,30 +1,56 @@
-type:fix
-type:build
+# convcommit - Conventional Commit message builder
+# This file is read by the `convcommit` CLI tool to populate
+# the interactive selector menus.
+#
+# FORMAT
+#   type:<value>      — commit type option (e.g. fix, feat, docs)
+#   scope:<value>     — commit scope option
+#   message:<value>   — commit message template
+#
+# SPECIAL PREFIXES
+#   ~<value>          — marks the default selection
+#   _                 — enables free-text manual input (press ".")
+#   [X]<value>        — forces key letter X for this entry (e.g. [I]init, [W]wip)
+#
+# HOW TO USE (interactive)
+#   Run `convcommit` in a git repo. A menu appears for type, scope, message.
+#   Press the letter shown in brackets [A][B]... or [.] for manual input.
+#
+# HOW TO USE (AI agent / non-interactive pipe)
+#   Pipe selections as lines, one per stage (type, scope, message).
+#   Use the letter shown in the menu, or "." to trigger manual input.
+#   Example:
+#     printf "A\n.\nfix null pointer in login\n" | convcommit
+#   Or use direct flags to bypass the selector entirely:
+#     convcommit --type fix --scope auth --message "fix null pointer"
+#   To regenerate this file with the latest defaults:
+#     convcommit --reset
+#
+# INSTALLATION
+#   convcommit is a single bash file with no dependencies.
+#   Install it locally in your project:
+#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \
+#       -o bin/convcommit && chmod +x bin/convcommit
+#   Or system-wide:
+#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \
+#       -o /usr/local/bin/convcommit && chmod +x /usr/local/bin/convcommit
+type:[B]build
 type:~chore
-type:docs
-type:merge
+type:[D]docs
+type:deps
 type:feat
-type:style
-type:refactor
-type:perf
-type:test
+type:fix
 type:ci
+type:init
+type:merge
+type:perf
+type:refactor
 type:revert
 type:security
-type:deps
-type:wip
-type:init
+type:style
+type:test
+type:[W]wip
 scope:_
 scope:~
 message:_
 message:~_
-message:fixed issue=?
-scope:auth
-scope:session
-message:cane=? gatto=?
-message:io=? tu=?
-message:cane=? plutio=?
-message:tipo=? pane=?
-message:pluto=? mino=?
-scope:testing
-message:init testing framework

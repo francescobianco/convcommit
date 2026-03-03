@@ -39,13 +39,40 @@ else
   fail "--type --message no scope" "$result"
 fi
 
-# Test 3: pipe mode — select by letter (A = first type = fix)
-# The .convcommit already exists from previous tests; type:fix is item A
-result=$(printf "A\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
-if echo "$result" | grep -q "^fix"; then
-  pass "pipe mode: letter A selects first type (fix)"
+# Test 3: pipe mode — verify forced ([B]build, [D]docs, [W]wip) and sequential letters
+result=$(printf "B\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
+if echo "$result" | grep -q "^build"; then
+  pass "pipe mode: [B]build → letter B"
 else
-  fail "pipe mode: letter A" "$result"
+  fail "pipe mode: letter B" "$result"
+fi
+
+result=$(printf "D\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
+if echo "$result" | grep -q "^docs"; then
+  pass "pipe mode: [D]docs → letter D"
+else
+  fail "pipe mode: letter D" "$result"
+fi
+
+result=$(printf "F\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
+if echo "$result" | grep -q "^feat"; then
+  pass "pipe mode: feat → sequential letter F"
+else
+  fail "pipe mode: letter F" "$result"
+fi
+
+result=$(printf "I\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
+if echo "$result" | grep -q "^init"; then
+  pass "pipe mode: init → sequential letter I"
+else
+  fail "pipe mode: letter I" "$result"
+fi
+
+result=$(printf "W\n\n\n" | "$CONVCOMMIT" 2>/dev/null)
+if echo "$result" | grep -q "^wip"; then
+  pass "pipe mode: [W]wip → letter W"
+else
+  fail "pipe mode: letter W" "$result"
 fi
 
 # Test 4: pipe mode — use "." for manual type input

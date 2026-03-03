@@ -10,6 +10,7 @@ convcommit_selector() {
   local columns_width
   local default_value
   local field
+  local forced_letter
 
   convcommit_file="$1"
   stage="$2"
@@ -27,6 +28,15 @@ convcommit_selector() {
 
     [ "${prefix}" != "${stage}" ] && continue
 
+    # Extract forced letter: [X]value syntax
+    forced_letter=
+    case "$value" in
+      \[?\]*)
+        forced_letter=$(echo "$value" | cut -c2 | tr '[:lower:]' '[:upper:]')
+        value=$(echo "$value" | cut -c4-)
+        ;;
+    esac
+
     if [ "${value#\~}" != "$value" ]; then
       value="${value#\~}"
       default_value="${value}"
@@ -39,10 +49,15 @@ convcommit_selector() {
 
     [ -z "${value}" ] && continue
 
-    index=$((index + 1))
-    column=$((column + 1))
-    letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+    if [ -n "$forced_letter" ]; then
+      index=$(printf '%d' "'${forced_letter}")
+      letter="$forced_letter"
+    else
+      index=$((index + 1))
+      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+    fi
 
+    column=$((column + 1))
     printf "[%s] %-${columns_width}s" "$letter" "$value" >&2
     if [ "${column}" -eq "${columns}" ]; then
       column=0
@@ -64,17 +79,33 @@ convcommit_selector() {
       key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
     fi
     echo "" >&2
-    #echo "Pressed key: $key" >&2
     index=64
     while read -r line; do
       prefix=$(echo "${line}" | cut -d ':' -f 1)
       value=$(echo "${line}" | cut -d ':' -f 2)
       [ "${prefix}" != "${stage}" ] && continue
+
+      # Extract forced letter: [X]value syntax
+      forced_letter=
+      case "$value" in
+        \[?\]*)
+          forced_letter=$(echo "$value" | cut -c2 | tr '[:lower:]' '[:upper:]')
+          value=$(echo "$value" | cut -c4-)
+          ;;
+      esac
+
       [ "${value#\~}" != "$value" ] && value="${value#\~}"
       [ "${value}" = "_" ] && continue
-      #[ -z "${input}" ] && input="${value}"
-      index=$((index + 1))
-      letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+      [ -z "${value}" ] && continue
+
+      if [ -n "$forced_letter" ]; then
+        index=$(printf '%d' "'${forced_letter}")
+        letter="$forced_letter"
+      else
+        index=$((index + 1))
+        letter=$(printf "%b" "\\$(printf '%03o' "$index")")
+      fi
+
       [ "${key}" = "${letter}" ] && input="${value}"
     done < "${convcommit_file}"
   elif [ -n "${has_manual_input}" ]; then

@@ -29,6 +29,9 @@ main() {
             direct_scope="$2"; shift ;;
           -m|--message)
             direct_message="$2"; shift ;;
+          --reset)
+            rm -f ".convcommit"
+            ;;
           *)
             echo "Unknown option: $1" >&2
             exit 1
@@ -58,6 +61,7 @@ main() {
     echo "# SPECIAL PREFIXES" >> "${convcommit_file}"
     echo "#   ~<value>          — marks the default selection" >> "${convcommit_file}"
     echo "#   _                 — enables free-text manual input (press \".\")" >> "${convcommit_file}"
+    echo "#   [X]<value>        — forces key letter X for this entry (e.g. [I]init, [W]wip)" >> "${convcommit_file}"
     echo "#" >> "${convcommit_file}"
     echo "# HOW TO USE (interactive)" >> "${convcommit_file}"
     echo "#   Run \`convcommit\` in a git repo. A menu appears for type, scope, message." >> "${convcommit_file}"
@@ -70,6 +74,8 @@ main() {
     echo "#     printf \"A\n.\nfix null pointer in login\n\" | convcommit" >> "${convcommit_file}"
     echo "#   Or use direct flags to bypass the selector entirely:" >> "${convcommit_file}"
     echo "#     convcommit --type fix --scope auth --message \"fix null pointer\"" >> "${convcommit_file}"
+    echo "#   To regenerate this file with the latest defaults:" >> "${convcommit_file}"
+    echo "#     convcommit --reset" >> "${convcommit_file}"
     echo "#" >> "${convcommit_file}"
     echo "# INSTALLATION" >> "${convcommit_file}"
     echo "#   convcommit is a single bash file with no dependencies." >> "${convcommit_file}"
@@ -79,22 +85,22 @@ main() {
     echo "#   Or system-wide:" >> "${convcommit_file}"
     echo "#     curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \\" >> "${convcommit_file}"
     echo "#       -o /usr/local/bin/convcommit && chmod +x /usr/local/bin/convcommit" >> "${convcommit_file}"
-    echo "type:fix" >> "${convcommit_file}"
-    echo "type:build" >> "${convcommit_file}"
+    echo "type:[B]build" >> "${convcommit_file}"
     echo "type:~chore" >> "${convcommit_file}"
-    echo "type:docs" >> "${convcommit_file}"
-    echo "type:merge" >> "${convcommit_file}"
+    echo "type:[D]docs" >> "${convcommit_file}"
+    echo "type:deps" >> "${convcommit_file}"
     echo "type:feat" >> "${convcommit_file}"
-    echo "type:style" >> "${convcommit_file}"
-    echo "type:refactor" >> "${convcommit_file}"
-    echo "type:perf" >> "${convcommit_file}"
-    echo "type:test" >> "${convcommit_file}"
+    echo "type:fix" >> "${convcommit_file}"
     echo "type:ci" >> "${convcommit_file}"
+    echo "type:init" >> "${convcommit_file}"
+    echo "type:merge" >> "${convcommit_file}"
+    echo "type:perf" >> "${convcommit_file}"
+    echo "type:refactor" >> "${convcommit_file}"
     echo "type:revert" >> "${convcommit_file}"
     echo "type:security" >> "${convcommit_file}"
-    echo "type:deps" >> "${convcommit_file}"
-    echo "type:wip" >> "${convcommit_file}"
-    echo "type:init" >> "${convcommit_file}"
+    echo "type:style" >> "${convcommit_file}"
+    echo "type:test" >> "${convcommit_file}"
+    echo "type:[W]wip" >> "${convcommit_file}"
     echo "scope:_" >> "${convcommit_file}"
     echo "scope:~" >> "${convcommit_file}"
     echo "message:_" >> "${convcommit_file}"
