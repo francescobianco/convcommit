@@ -8,6 +8,7 @@ usage() {
   echo "  -t, --type <type>       Commit type (bypasses interactive selector)"
   echo "  -s, --scope <scope>     Commit scope (bypasses interactive selector)"
   echo "  -m, --message <msg>     Commit message (bypasses interactive selector)"
+  echo "  -A, --add <file>        Stage a specific file (repeatable)"
   echo "  -a, --all               Stage all changes (git add .) before committing"
   echo "  -p, --push              Push to remote after committing"
   echo "      --reset             Regenerate .convcommit with latest defaults"
@@ -19,6 +20,7 @@ usage() {
   echo "Direct flags usage:"
   echo "  convcommit --type fix --scope auth --message 'fix null pointer'"
   echo "  convcommit -t feat -s api -m 'add endpoint' -a -p"
+  echo "  convcommit --add src/foo.sh --add README.md -t docs -m 'update docs' -p"
 }
 
 main() {
@@ -32,6 +34,7 @@ main() {
   local direct_type
   local direct_scope
   local direct_message
+  local add_files
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -47,6 +50,8 @@ main() {
           -p|--push)
             push=true
             ;;
+          -A|--add)
+            add_files="${add_files} $2"; shift ;;
           -t|--type)
             direct_type="$2"; shift ;;
           -s|--scope)
@@ -141,7 +146,11 @@ main() {
     message="${commit_type}: ${commit_message}"
   fi
 
-  if [ -n "$commit_all" ]; then
+  if [ -n "$add_files" ]; then
+    # shellcheck disable=SC2086
+    git add $add_files
+    git commit -m "${message}" && true
+  elif [ -n "$commit_all" ]; then
     git add .
     git commit -am "${message}" && true
   else
