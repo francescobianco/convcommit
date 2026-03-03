@@ -1,21 +1,39 @@
+<div align="center">
+
+<img src=".github/assets/header.svg" alt="convcommit terminal demo" width="720"/>
+
 # convcommit
 
-**convcommit** is a lightweight, zero-dependency CLI tool that helps enforce [Conventional Commits](https://www.conventionalcommits.org/) in your Git workflow. It provides an interactive menu for selecting type, scope, and message — and a full non-interactive API for scripting and AI agents.
+**Interactive [Conventional Commits](https://www.conventionalcommits.org/) builder for the terminal**
 
-## Features
+[![License: MIT](https://img.shields.io/badge/license-MIT-a6e3a1?style=flat-square)](LICENSE)
+[![Shell: Bash](https://img.shields.io/badge/shell-bash-89b4fa?style=flat-square&logo=gnubash&logoColor=white)](bin/convcommit)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-f9e2af?style=flat-square)](https://www.conventionalcommits.org/)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-a6e3a1?style=flat-square)](#installation)
+[![Version](https://img.shields.io/badge/version-0.1.0-cba6f7?style=flat-square)](Manifest.toml)
+[![GitHub Stars](https://img.shields.io/github/stars/francescobianco/convcommit?style=flat-square&color=f38ba8)](https://github.com/francescobianco/convcommit/stargazers)
 
-- Interactive commit message builder (keyboard-driven menu)
-- Direct flags to bypass the selector — great for scripts and AI agents
-- `--add` flag to stage specific files and commit in a single command
-- `--all` / `--push` flags for one-liner full workflows
-- Pre-flight checks: warns before committing or pushing when the state is invalid
-- Pipe/stdin mode for non-interactive (CI, LLM agents) usage
-- Configurable via a `.convcommit` file per project (auto-created on first run)
-- Forced letter assignment (`[X]value`) and default selection (`~value`) in the config
+</div>
 
 ---
 
-## Installation
+## ✨ Features
+
+| | |
+|---|---|
+| 🎹 | **Interactive keyboard menu** — pick type, scope, message with a single keypress |
+| 🚀 | **Direct flags** — bypass the selector for scripts and AI agents |
+| 📦 | **`--add` flag** — stage specific files and commit in one command |
+| 🔁 | **`--all` + `--push`** — full workflow in a single one-liner |
+| 🛡️ | **Pre-flight checks** — catches empty trees and stale branches _before_ you commit |
+| 🤖 | **Pipe / stdin mode** — fully scriptable, works in CI and LLM contexts |
+| ⚙️ | **`.convcommit` config** — per-project vocabulary, committed and shared with the team |
+| 🅰️ | **Forced letter syntax** `[X]value` — craft memorable keybindings in your config |
+| 🦀 | **Zero dependencies** — single bash file, installs anywhere |
+
+---
+
+## 📦 Installation
 
 **System-wide** (recommended):
 ```sh
@@ -23,7 +41,7 @@ curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/hea
   -o /usr/local/bin/convcommit && chmod +x /usr/local/bin/convcommit
 ```
 
-**Per-project** (committed into the repo):
+**Per-project** (committed into the repo, great for teams):
 ```sh
 curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/heads/main/bin/convcommit \
   -o bin/convcommit && chmod +x bin/convcommit
@@ -31,26 +49,24 @@ curl -fsSL https://raw.githubusercontent.com/francescobianco/convcommit/refs/hea
 
 ---
 
-## Usage
-
-### Interactive mode
+## 🎹 Interactive mode
 
 Run inside a git repo and follow the menu:
 
 ```sh
-convcommit          # print the message only
-convcommit -a       # git add . then commit
-convcommit -a -p    # git add . then commit then push
+convcommit          # → prints the formatted message only
+convcommit -a       # → git add . then commit
+convcommit -a -p    # → git add . then commit then push
 ```
 
-Press the bracketed letter `[A]`, `[B]`, ... to select an option.
+Press the **bracketed letter** `[F]`, `[G]`, ... to select an option.
 Press `[.]` to type free text when the `_` entry is available.
 
 ---
 
-### Direct flags — the recommended pattern for scripts and AI agents
+## 🚀 Direct flags — recommended for scripts and AI agents
 
-Bypass the interactive selector entirely:
+Bypass the interactive selector entirely with explicit flags:
 
 ```sh
 convcommit --type fix --scope auth --message "fix null pointer"
@@ -59,23 +75,23 @@ convcommit -t feat -s api -m "add endpoint" -a -p
 
 ---
 
-### `--add` flag: stage specific files and commit in one command
+## 📦 `--add` flag: stage specific files and commit in one command
 
-This is the cleanest pattern when you want to commit only selected files.
+This is the **cleanest pattern** when committing selected files.
 
-**Anti-pattern** (nested command substitution — verbose and error-prone):
+**❌ Anti-pattern** (nested command substitution — verbose and fragile):
 ```sh
 msg=$(convcommit --type fix --scope auth --message "fix null pointer") \
   && git commit -m "$msg" \
   && git push
 ```
 
-**Recommended pattern** (one liner, safe, readable):
+**✅ Recommended** — one liner, readable, safe:
 ```sh
 convcommit --add src/auth.sh --type fix --scope auth --message "fix null pointer" --push
 ```
 
-The `--add` flag is repeatable — you can stage multiple files:
+The `--add` flag is **repeatable** — stage as many files as you need:
 ```sh
 convcommit --add src/auth.sh --add tests/auth_test.sh \
   -t test -s auth -m "add auth unit tests" -p
@@ -83,23 +99,22 @@ convcommit --add src/auth.sh --add tests/auth_test.sh \
 
 ---
 
-### Pipe mode — for CI and LLM/AI agents
+## 🤖 Pipe mode — CI and LLM/AI agents
 
-When stdin is not a TTY, convcommit reads selections line by line.
-Each line corresponds to a selector stage: type → scope → message.
+When stdin is **not a TTY**, convcommit reads selections line-by-line.
+Each line corresponds to a stage: **type → scope → message**.
 
+```sh
+# F = feat, empty line = no scope, then the message
+printf "F\n\nadd endpoint\n" | convcommit -a -p
+```
+
+Use `.` to trigger free-text input mid-pipe:
 ```sh
 printf "G\n.\nfix null pointer in login\n" | convcommit
 ```
 
-Where `G` = fix (per the default letter assignment), `.` triggers free-text input for scope, and the next line is the typed message.
-
-Combined with `--all` and `--push`:
-```sh
-printf "G\n.\nfix null pointer\n" | convcommit -a -p
-```
-
-To get just the formatted message (e.g. to inject into another tool):
+Capture just the formatted message for injection elsewhere:
 ```sh
 msg=$(printf "G\n\nfix null pointer\n" | convcommit)
 echo "$msg"
@@ -108,7 +123,7 @@ echo "$msg"
 
 ---
 
-### Options
+## ⚙️ Options
 
 | Option | Description |
 |---|---|
@@ -124,10 +139,10 @@ echo "$msg"
 
 ---
 
-## Configuration — `.convcommit`
+## 🗂️ Configuration — `.convcommit`
 
-On first run, convcommit auto-creates a `.convcommit` file in the current directory.
-You can commit this file to share the project's commit vocabulary with the team.
+On first run, convcommit **auto-creates** a `.convcommit` file in the current directory.
+Commit this file to share the project's commit vocabulary with your team.
 
 ### Format
 
@@ -141,72 +156,27 @@ message:<value>   — commit message template
 
 | Prefix | Effect |
 |---|---|
-| `~<value>` | Marks this entry as the default selection |
-| `_` | Enables free-text manual input (press `.` in the menu) |
-| `[X]<value>` | Forces letter `X` for this entry, skipping the sequential counter |
+| `~<value>` | Default selection (highlighted with ★) |
+| `_` | Enables free-text input (press `.` in the menu) |
+| `[X]<value>` | Forces letter `X` for this entry, overriding the sequential counter |
 
-### Example `.convcommit`
+### Default letter assignment
+
+With the default config, the type menu looks like this:
 
 ```
-type:[B]build
-type:~chore
-type:[D]docs
-type:deps
-type:feat
-type:fix
-type:[W]wip
-scope:_
-scope:~
-message:_
-message:~_
+[B] build    ★[C] chore    [D] docs     [E] deps
+[F] feat      [G] fix      [H] ci       [I] init
+[J] merge     [K] perf     [L] refactor [M] revert
+[N] security  [O] style    [P] test     [W] wip
+[.] type freely
 ```
 
-This produces:
-`B`=build, `C`=chore, `D`=docs, `E`=deps, `F`=feat, `G`=fix, ... `W`=wip
+`[B]`, `[D]`, `[W]` are **forced** to skip `A`, keep `D` for docs, and assign the memorable `W` for wip.
+Everything else follows **alphabetical order** — no chaos, no need to memorise a map.
 
-The `[B]` and `[D]` forced letters skip `A` and jump over the sequential counter,
-giving memorable mnemonics without chaotic assignments.
+### Customize scopes for your project
 
-### Regenerate defaults
-
-```sh
-convcommit --reset
-```
-
----
-
-## Pre-flight checks
-
-When running in interactive mode (stdout is a TTY), convcommit validates the environment before starting the selector — so you never waste time building a message only to fail at the git step:
-
-- **Before committing**: checks there are staged/unstaged changes to commit
-- **Before pushing**: checks a remote is configured and the branch is not behind
-
----
-
-## Developer experience tips
-
-**Full release workflow in one command:**
-```sh
-convcommit -a -p
-```
-
-**Commit a built binary with a typed message:**
-```sh
-convcommit --add bin/mytool -t build -s bin -m "update binary" -p
-```
-
-**Let an AI agent (Claude Code, etc.) commit without interaction:**
-```sh
-convcommit --type feat --scope ui --message "add dark mode toggle" --all --push
-```
-
-**Use `--reset` when the project defaults evolve:**
-```sh
-convcommit --reset   # removes .convcommit so it's recreated with latest defaults
-```
-
-**Customize scopes for your project in `.convcommit`:**
 ```
 scope:~
 scope:_
@@ -217,14 +187,58 @@ scope:db
 scope:ci
 ```
 
-This gives your team a curated, project-specific scope vocabulary while still allowing free text via `_`.
+This gives your team a curated vocabulary while still allowing free text via `_`.
+
+### Regenerate defaults
+
+```sh
+convcommit --reset
+```
 
 ---
 
-## Contributing
+## 🛡️ Pre-flight checks
+
+When running **interactively** (stdout is a TTY), convcommit validates the environment before opening the selector — so you never waste time building a message only to fail at the git step:
+
+| Check | When |
+|---|---|
+| Working tree is not clean | Before any commit (`-a` or `--add`) |
+| No remote configured | Before `--push` |
+| Branch is behind remote | Before `--push` (prevents rejected pushes) |
+
+> ℹ️ Checks are **skipped** when stdout is captured (`msg=$(convcommit ...)`) — this is intentional and allows message-only generation without touching git state.
+
+---
+
+## 💡 Developer experience tips
+
+**Full release workflow in one shot:**
+```sh
+convcommit -a -p
+```
+
+**Commit a built binary with a typed message:**
+```sh
+convcommit --add bin/mytool -t build -s bin -m "update binary" -p
+```
+
+**Let an AI agent commit without interaction:**
+```sh
+convcommit --type feat --scope ui --message "add dark mode toggle" --all --push
+```
+
+**Evolving project vocabulary? Just reset:**
+```sh
+convcommit --reset && convcommit -t chore -s config -m "refresh convcommit defaults" -a -p
+```
+
+---
+
+## 🤝 Contributing
 
 We welcome contributions! Feel free to fork the repository, submit pull requests, or open issues for any improvements or bug fixes.
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
