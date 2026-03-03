@@ -37,8 +37,15 @@ convcommit
 
 ### Options
 
-- `-a`, `--all`  → Automatically add all changes before committing.
-- `-p`, `--push` → Push the commit to the remote repository after committing.
+| Option | Description |
+|---|---|
+| `-t`, `--type <type>` | Commit type (bypasses interactive selector) |
+| `-s`, `--scope <scope>` | Commit scope (bypasses interactive selector) |
+| `-m`, `--message <msg>` | Commit message (bypasses interactive selector) |
+| `-a`, `--all` | Stage all changes before committing |
+| `-p`, `--push` | Push to remote after committing |
+| `--reset` | Regenerate `.convcommit` with latest defaults |
+| `-h`, `--help` | Print help and exit |
 
 ### Example
 
