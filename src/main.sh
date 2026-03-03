@@ -74,6 +74,29 @@ main() {
     shift
   done || true
 
+  # Pre-flight checks — only in interactive/commit mode (stdout is a TTY).
+  # Skipped when stdout is captured (msg=$(convcommit ...)) to allow message injection.
+  if [ -t 1 ]; then
+    if [ -n "$commit_all" ] || [ -n "$add_files" ]; then
+      if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
+        echo "error: nothing to commit, working tree clean" >&2
+        exit 1
+      fi
+    fi
+    if [ -n "$push" ]; then
+      if ! git remote | grep -q '.'; then
+        echo "error: no remote configured" >&2
+        exit 1
+      fi
+      local behind
+      behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+      if [ "$behind" -gt 0 ]; then
+        echo "error: branch is behind remote by ${behind} commit(s), run 'git pull' first" >&2
+        exit 1
+      fi
+    fi
+  fi
+
   convcommit_file=".convcommit"
 
   if [ ! -f "${convcommit_file}" ]; then
