@@ -1,6 +1,26 @@
 
 module selector
 
+usage() {
+  echo "Usage: convcommit [OPTIONS]"
+  echo ""
+  echo "Options:"
+  echo "  -t, --type <type>       Commit type (bypasses interactive selector)"
+  echo "  -s, --scope <scope>     Commit scope (bypasses interactive selector)"
+  echo "  -m, --message <msg>     Commit message (bypasses interactive selector)"
+  echo "  -a, --all               Stage all changes (git add .) before committing"
+  echo "  -p, --push              Push to remote after committing"
+  echo "      --reset             Regenerate .convcommit with latest defaults"
+  echo "  -h, --help              Print this help and exit"
+  echo ""
+  echo "Non-interactive (pipe) usage:"
+  echo "  printf 'F\n\nmy message\n' | convcommit"
+  echo ""
+  echo "Direct flags usage:"
+  echo "  convcommit --type fix --scope auth --message 'fix null pointer'"
+  echo "  convcommit -t feat -s api -m 'add endpoint' -a -p"
+}
+
 main() {
   local commit_all
   local push
@@ -17,6 +37,10 @@ main() {
     case "$1" in
       -*)
         case "$1" in
+          -h|--help)
+            usage; exit 0 ;;
+          -V|--version)
+            echo "convcommit 0.1.0"; exit 0 ;;
           -a|--all)
             commit_all=true
             ;;
